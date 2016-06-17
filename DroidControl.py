@@ -41,6 +41,8 @@ class DroidControlThread(threading.Thread):
 
     def stop(self):
         self.running = False
+        if config.DEBUG:
+            print("DroidControlThread: Stopping thread")
 
     def execute_commands(self):
         while self.running:
