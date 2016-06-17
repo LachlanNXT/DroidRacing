@@ -9,7 +9,7 @@ import random
 
 lock = threading.Lock()
 command_queue = queue.Queue(50)
-droid = DroidControl.DroidControlThread()
+droid = DroidControl.DroidControlThread(command_queue, lock)
 droid.start()
 
 while True:

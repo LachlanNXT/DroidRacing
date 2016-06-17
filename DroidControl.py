@@ -22,7 +22,7 @@ class DroidControlThread(threading.Thread):
             self.arduino = serial.Serial(port=config.SERIAL_NAME,
                                          baudrate=config.SERIAL_BAUD_RATE,
                                          write_timeout=config.SERIAL_TIMEOUT)
-        except SerialException:
+        except serial.SerialException:
             if config.DEBUG:
                 print("DroidControlThread: Unable to find serial device")
                 print("DroidControlThread: Thread not started")
@@ -56,7 +56,7 @@ class DroidControlThread(threading.Thread):
                 self.arduino.write(str.encode(command))
                 if config.DEBUG:
                     print("DroidControlThread: command sent: " + command)
-            except SerialTimeoutException:
+            except serial.SerialTimeoutException:
                 if config.DEBUG:
                     print("DroidControlThread: Timeout writing command to arduino")
         elif config.DEBUG:
