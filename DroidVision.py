@@ -36,8 +36,8 @@ class DroidVisionThread(threading.Thread):
     def vision_processing(self):
         while self.running:
             self.grab_frame()
-            blue_mask = colour_threshold(self.frame_hsv, config.BLUE_LOW, config.BLUE_HIGH)
-            yellow_mask = colour_threshold(self.frame_hsv, config.YELLOW_LOW, config.YELLOW_HIGH)
+            blue_mask = self.colour_threshold(self.frame_hsv, config.BLUE_LOW, config.BLUE_HIGH)
+            yellow_mask = self.colour_threshold(self.frame_hsv, config.YELLOW_LOW, config.YELLOW_HIGH)
 
             # INSERT ALGORITHMS FOR FINDING DESIRED STEERING ANGLE AND THROTTLE HERE
             # put those values into self.desired_steering and self.desired_throttle
