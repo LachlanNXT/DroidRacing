@@ -18,6 +18,7 @@ class DroidControlThread(threading.Thread):
         self.command_queue = command_queue
         self.lock = lock
         self.running = True
+        self.arduino = None
         try:
             self.arduino = serial.Serial(port=config.SERIAL_NAME,
                                          baudrate=config.SERIAL_BAUD_RATE,
@@ -29,6 +30,8 @@ class DroidControlThread(threading.Thread):
             self.stop()
         
     def run(self):
+        if self.arduino == None:
+            return
         if config.DEBUG:
             print("DroidControlThread: Thread started")
         self.execute_commands()
