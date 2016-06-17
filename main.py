@@ -31,8 +31,11 @@ vision.start()
 
 while True:
     try:
+        # get latest steering and throttle update
         steering, throttle = vision.get_steering_throttle()
+        # add it to the queue to be sent to arduino
         set_steering_throttle(steering, throttle)
+        time.sleep(1)
     except KeyboardInterrupt:
         debug("Main: KeyboardInterrupt - stopping")
         break
