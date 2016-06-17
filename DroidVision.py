@@ -12,6 +12,7 @@ from imutils.video import FPS
 class DroidVisionThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
+        self.running = True
         self.fps_counter = FPS().start()
         self.camera = PiVideoStream(resolution=(config.FRAME_WIDTH, config.FRAME_HEIGHT))
         self.camera.start()
