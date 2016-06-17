@@ -19,7 +19,7 @@ QUEUE_SLEEP_TIME = 0.025 # seconds
 
 # used by DroidVision
 FRAME_WIDTH = 500
-FRAEM_HEIGHT = 200
+FRAME_HEIGHT = 200
 # HSV thresholds
 BLUE_LOW = [105, 50, 50]
 BLUE_HIGH = [125, 255, 255]
