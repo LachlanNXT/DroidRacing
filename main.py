@@ -35,6 +35,7 @@ while True:
         debug("Main: KeyboardInterrupt - stopping")
         break
 
+debug("Main: Average FPS: " + str(vision.get_fps()))
 debug("Main: joining threads")
 command_queue.join()
 droid.stop()

@@ -2,7 +2,7 @@
 
 # global config
 DEBUG = True
-DEBUG_MODE = "PRINT" # use either PRINT or FILE
+DEBUG_MODE = "FILE" # use either PRINT or FILE
 IMSHOW = True
 
 # used by Main
@@ -15,7 +15,7 @@ MAX_STEERING = 1900
 SERIAL_NAME = '/dev/ttyUSB0'
 SERIAL_BAUD_RATE = 115200
 SERIAL_TIMEOUT = 0.1 # seconds
-QUEUE_SLEEP_TIME = 0.025 # seconds
+QUEUE_SLEEP_TIME = 0.01 # seconds
 
 # used by DroidVision
 FRAME_WIDTH = 500
