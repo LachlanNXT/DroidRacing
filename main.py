@@ -1,36 +1,39 @@
 #!/usr/bin/python3.4
 
 import config
+import utils
 import DroidControl
+import DroidVision
 import threading
 import queue
 import time
 import random
+
+def set_steering_throttle(steering, throttle):
+    throttle = (throttle * (config.MAX_THROTTLE - config.MIN_THROTTLE)) + MIN_THROTTLE
+    steering = (steering * (config.MAX_STEERING - config.MIN_STEERING)) + MIN_STEERING
+    st_command = "S" + str(len(str(steering))) + str(steering)
+    th_command = "T" + str(len(str(throttle))) + str(throttle)
+    lock.acquire()
+    command_queue.put(st_command)
+    command_queue.put(th_command)
+    lock.release()
 
 lock = threading.Lock()
 command_queue = queue.Queue(50)
 droid = DroidControl.DroidControlThread(command_queue, lock)
 droid.start()
 
-while True:
-    try:
-        command = "S4" + str(random.randint(1100, 1800))
-        lock.acquire()
-        command_queue.put(command)
-        lock.release()
-        if config.DEBUG:
-            print("Main: command added: " + command)
-        time.sleep(5)
-    except KeyboardInterrupt:
-        if config.DEBUG:
-            print("Main: main loop ending")
-            break
+vision = DroidVisionThread()
+vision.start()
 
-if config.DEBUG:
-    print("Main: joining threads")
+while True:
+    steering, throttle = vision.get_steering_throttle()
+    set_steering_throttle(steering, throttle)
+
+
+debug("Main: joining threads")
 command_queue.join()
 droid.stop()
 droid.join()
-
-if config.DEBUG:
-    print("Main: finished")
+debug("Main: program finished")

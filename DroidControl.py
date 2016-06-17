@@ -1,6 +1,7 @@
 #!/usr/bin/python3.4
 
 import config
+import utils
 import serial
 import threading
 import queue
@@ -24,25 +25,21 @@ class DroidControlThread(threading.Thread):
                                          baudrate=config.SERIAL_BAUD_RATE,
                                          write_timeout=config.SERIAL_TIMEOUT)
         except serial.SerialException:
-            if config.DEBUG:
-                print("DroidControlThread: Unable to find serial device")
-                print("DroidControlThread: Thread not started")
+            debug("DroidControlThread: Unable to find serial device")
+            debug("DroidControlThread: Thread will immediately exit")
             self.stop()
         
     def run(self):
         if self.arduino == None:
             return
-        if config.DEBUG:
-            print("DroidControlThread: Thread started")
+        debug("DroidControlThread: Thread started")
         self.execute_commands()
         self.arduino.close()
-        if config.DEBUG:
-            print("DroidControlThread: Thread stopped")
+        debug("DroidControlThread: Thread stopped")
 
     def stop(self):
         self.running = False
-        if config.DEBUG:
-            print("DroidControlThread: Stopping thread")
+        debug("DroidControlThread: Stopping thread")
 
     def execute_commands(self):
         while self.running:
@@ -60,13 +57,11 @@ class DroidControlThread(threading.Thread):
         if self.valid_command(command):
             try:
                 self.arduino.write(str.encode(command))
-                if config.DEBUG:
-                    print("DroidControlThread: command sent: " + command)
+                debug("DroidControlThread: command sent: " + command)
             except serial.SerialTimeoutException:
-                if config.DEBUG:
-                    print("DroidControlThread: Timeout writing command to arduino")
-        elif config.DEBUG:
-                print("DroidControlThread: Invalid command: " + command)
+                debug("DroidControlThread: Timeout writing command to arduino")
+        else:
+            debug("DroidControlThread: Invalid command: " + command)
 
     # refer to arduino code to see how commands are structured
     def valid_command(self, command):
