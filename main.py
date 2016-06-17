@@ -33,7 +33,11 @@ while True:
     try:
         # get latest steering and throttle update
         steering, throttle = vision.get_steering_throttle()
-        # add it to the queue to be sent to arduino
+
+        # pid control and/or kalman filter here
+        # for smooth control
+
+        # add desired outputs to the queue to be sent to arduino
         set_steering_throttle(steering, throttle)
         time.sleep(0.05)
     except KeyboardInterrupt:
