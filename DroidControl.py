@@ -57,7 +57,6 @@ class DroidControlThread(threading.Thread):
         if self.valid_command(command):
             try:
                 self.arduino.write(str.encode(command))
-                debug("DroidControlThread: command sent: " + command)
             except serial.SerialTimeoutException:
                 debug("DroidControlThread: Timeout writing command to arduino")
         else:
