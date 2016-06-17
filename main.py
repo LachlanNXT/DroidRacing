@@ -10,8 +10,8 @@ import time
 import random
 
 def set_steering_throttle(steering, throttle):
-    throttle = (throttle * (config.MAX_THROTTLE - config.MIN_THROTTLE)) + config.MIN_THROTTLE
-    steering = (steering * (config.MAX_STEERING - config.MIN_STEERING)) + config.MIN_STEERING
+    throttle = int((throttle * (config.MAX_THROTTLE - config.MIN_THROTTLE)) + config.MIN_THROTTLE)
+    steering = int((steering * (config.MAX_STEERING - config.MIN_STEERING)) + config.MIN_STEERING)
     st_command = "S" + str(len(str(steering))) + str(steering)
     th_command = "T" + str(len(str(throttle))) + str(throttle)
     lock.acquire()
@@ -35,7 +35,7 @@ while True:
         steering, throttle = vision.get_steering_throttle()
         # add it to the queue to be sent to arduino
         set_steering_throttle(steering, throttle)
-        time.sleep(1)
+        time.sleep(config.QUEUE_SLEEP_TIME)
     except KeyboardInterrupt:
         debug("Main: KeyboardInterrupt - stopping")
         break

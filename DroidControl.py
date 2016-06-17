@@ -44,7 +44,6 @@ class DroidControlThread(threading.Thread):
     def execute_commands(self):
         while self.running:
             self.lock.acquire()
-            debug("DroidControlThread: queue size: " + str(self.command_queue.qsize()))
             if not self.command_queue.empty():
                 command = self.command_queue.get()
                 self.lock.release()
