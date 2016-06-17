@@ -1,7 +1,7 @@
 #!/usr/bin/python3.4
 
 import config
-import utils
+from utils import debug
 import threading
 import cv2
 import numpy as np

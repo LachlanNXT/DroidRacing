@@ -1,7 +1,7 @@
 #!/usr/bin/python3.4
 
 import config
-import utils
+from utils import debug
 import serial
 import threading
 import queue

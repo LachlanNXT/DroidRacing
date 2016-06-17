@@ -1,7 +1,7 @@
 #!/usr/bin/python3.4
 
 import config
-import utils
+from utils import debug
 import DroidControl
 import DroidVision
 import threading
@@ -30,7 +30,6 @@ vision.start()
 while True:
     steering, throttle = vision.get_steering_throttle()
     set_steering_throttle(steering, throttle)
-
 
 debug("Main: joining threads")
 command_queue.join()
