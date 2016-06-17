@@ -4,9 +4,10 @@ import config
 import datetime as dt
 
 def debug(message):
-    timestamp = dt.datetime.now().strftime("%x-%X: ")
-    if (DEBUG_MODE == "FILE"):
-        with open('droid_log.txt', 'a') as logfile:
-            log.write(timestamp + message + "\n")
-    elif (DEBUG_MODE == "PRINT"):
-        print(timestamp + message + "\n")
+    if config.DEBUG:
+        timestamp = dt.datetime.now().strftime("%x-%X: ")
+        if (config.DEBUG_MODE == "FILE"):
+            with open('droid_log.txt', 'a') as logfile:
+                log.write(timestamp + message + "\n")
+        elif (config.DEBUG_MODE == "PRINT"):
+            print(timestamp + message + "\n")

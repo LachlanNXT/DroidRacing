@@ -2,7 +2,7 @@
 
 # global config
 DEBUG = True
-DEBUG_MODE = "PRINT"
+DEBUG_MODE = "PRINT" # use either PRINT or FILE
 IMSHOW = True
 
 # used by Main
