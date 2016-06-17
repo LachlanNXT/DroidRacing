@@ -51,6 +51,7 @@ class DroidControlThread(threading.Thread):
                 command = self.command_queue.get()
                 self.lock.release()
                 self.send_command(command)
+                self.command_queue.task_done()
             else:
                 self.lock.release()
             time.sleep(config.QUEUE_SLEEP_TIME)
