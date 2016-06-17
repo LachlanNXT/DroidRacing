@@ -28,11 +28,17 @@ vision = DroidVision.DroidVisionThread()
 vision.start()
 
 while True:
-    steering, throttle = vision.get_steering_throttle()
-    set_steering_throttle(steering, throttle)
+    try:
+        steering, throttle = vision.get_steering_throttle()
+        set_steering_throttle(steering, throttle)
+    except KeyboardInterrupt:
+        debug("Main: KeyboardInterrupt - stopping")
+        break
 
 debug("Main: joining threads")
 command_queue.join()
 droid.stop()
+vision.stop()
 droid.join()
+vision.join()
 debug("Main: program finished")
