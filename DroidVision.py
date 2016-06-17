@@ -24,6 +24,7 @@ class DroidVisionThread(threading.Thread):
         debug("DroidVisionThread: Thread started")
         self.vison_processing()
         self.camera.stop()
+        cv2.destroyAllWindows()
         debug("DroidVisionThread: Thread stopped")
 
     def stop(self):
