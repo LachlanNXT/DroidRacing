@@ -19,6 +19,8 @@ def set_steering_throttle(steering, throttle):
     command_queue.put(th_command)
     lock.release()
 
+debug("Main: program starting")
+
 lock = threading.Lock()
 command_queue = queue.Queue(50)
 droid = DroidControl.DroidControlThread(command_queue, lock)
@@ -37,9 +39,9 @@ while True:
 
 debug("Main: Average FPS: " + str(vision.get_fps()))
 debug("Main: joining threads")
+vision.stop()
 command_queue.join()
 droid.stop()
-vision.stop()
 droid.join()
 vision.join()
 debug("Main: program finished")
