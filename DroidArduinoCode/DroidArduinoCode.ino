@@ -12,6 +12,7 @@
 
 Servo throttle;
 Servo steering;
+unsigned long switchPulse;
 unsigned long throttlePulse;
 unsigned long steeringPulse;
 unsigned long pulse;
@@ -23,7 +24,7 @@ unsigned int s_readings[NUM_READINGS];
 unsigned int t_readings[NUM_READINGS];
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   pinMode(THROTTLE_IN, INPUT);
   pinMode(STEERING_IN, INPUT);
   pinMode(SWITCH_IN, INPUT);
@@ -33,9 +34,7 @@ void setup() {
   steering.attach(STEERING_OUT);
   index = 0;
   s_total = 0;
-  s_average = 0;
   t_total = 0;
-  t_average = 0;
   for (int i=0; i<NUM_READINGS; ++i) {
     s_readings[i] = 0;
     t_readings[i] = 0;
@@ -46,7 +45,8 @@ void setup() {
 
 void loop() {
   // if controller switch is on, pi has control
-  if (pulseIn(SWITCH_IN, HIGH, 40000) > 1500) {
+  switchPulse = pulseIn(SWITCH_IN, HIGH, 40000);
+  if (switchPulse > 1500 || switchPulse == 0) {
     piControl = 1;
     digitalWrite(LED_PIN, HIGH);
   } else {
@@ -73,6 +73,12 @@ void loop() {
       pulse *= 10;
       pulse += (Serial.read() - '0');
     }
+
+    if (pulse < 1000) {
+      pulse = 1000;
+    } else if (pulse > 2000){
+      pulse = 2000;
+    }
     
     if (piControl) {
       if (command == THROTTLE_COMMAND) {
@@ -86,10 +92,18 @@ void loop() {
   // moving average of last 10 readings for steering and throttle signals
   s_total -= s_readings[index];
   s_readings[index] = pulseIn(STEERING_IN, HIGH, 40000);
+  if (s_readings[index] < 1000) {
+    s_readings[index] = 1500;
+  }
   s_total += s_readings[index];
+  
   t_total -= t_readings[index];
   t_readings[index] = pulseIn(THROTTLE_IN, HIGH, 40000);
+  if (t_readings[index] < 1000) {
+    t_readings[index] = 1500;
+  }
   t_total += t_readings[index];
+  
   if (++index >= NUM_READINGS) {
     index = 0;
   }
