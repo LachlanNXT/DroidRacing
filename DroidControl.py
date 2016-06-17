@@ -45,8 +45,8 @@ class DroidControlThread(threading.Thread):
     def execute_commands(self):
         while self.running:
             self.lock.acquire()
-            if not command_queue.empty():
-                command = command_queue.get()
+            if not self.command_queue.empty():
+                command = self.command_queue.get()
                 self.lock.release()
                 self.send_command(command)
             else:
