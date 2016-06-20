@@ -15,7 +15,7 @@ MAX_STEERING = 1900
 SERIAL_NAME = '/dev/ttyUSB0'
 SERIAL_BAUD_RATE = 115200
 SERIAL_TIMEOUT = 0.1 # seconds
-QUEUE_SLEEP_TIME = 0.01 # seconds
+QUEUE_SLEEP_TIME = 0.03 # seconds
 
 # used by DroidVision
 FRAME_WIDTH = 500
