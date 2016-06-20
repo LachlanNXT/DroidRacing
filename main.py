@@ -39,7 +39,7 @@ while True:
 
         # add desired outputs to the queue to be sent to arduino
         set_steering_throttle(steering, throttle)
-        time.sleep(0.05)
+        time.sleep(config.QUEUE_SLEEP_TIME * 4)
     except KeyboardInterrupt:
         debug("Main: KeyboardInterrupt - stopping")
         break
