@@ -26,3 +26,7 @@ BLUE_HIGH = [125, 255, 255]
 YELLOW_LOW = [25, 130, 130]
 YELLOW_HIGH = [38, 255, 255]
 
+# Chromaticity thresholds
+# format: [r_min, r_max, b_min, b_max]
+Y_THOLD = [0.35,  0.45,  0,  0.3];
+B_THOLD = [0,  0.25,  0.45, 1];
