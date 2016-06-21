@@ -37,20 +37,9 @@ class DroidVisionThread(threading.Thread):
         while self.running:
             self.grab_frame()
             ## HSV
-            #self.frame_hsv = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
-            #blue_mask = self.colour_threshold(self.frame_hsv, config.BLUE_LOW, config.BLUE_HIGH)
-            #yellow_mask = self.colour_threshold(self.frame_hsv, config.YELLOW_LOW, config.YELLOW_HIGH)
-
-            ## CHROMATICITY
-            B = frame[:, :, 0]
-            G = frame[:, :, 1]
-            R = frame[:, :, 2]
-            Y = R + G + B;
-            r = R / Y;
-            b = B / Y;
-
-            blue_mask = (r > config.B_THOLD(0)) & (r < config.B_THOLD(1)) & (b > config.B_THOLD(2)) & (b < config.B_THOLD(3))
-            yellow_mask = (r > config.Y_THOLD(0)) & (r < config.Y_THOLD(1)) & (b > config.Y_THOLD(2)) & (b < config.Y_THOLD(3))
+            self.frame_hsv = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
+            blue_mask = self.colour_threshold(self.frame_hsv, config.BLUE_LOW, config.BLUE_HIGH)
+            yellow_mask = self.colour_threshold(self.frame_hsv, config.YELLOW_LOW, config.YELLOW_HIGH)
 
             # INSERT ALGORITHMS FOR FINDING DESIRED STEERING ANGLE AND THROTTLE HERE
             # put those values into self.desired_steering and self.desired_throttle

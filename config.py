@@ -21,12 +21,14 @@ QUEUE_SLEEP_TIME = 0.025 # seconds
 FRAME_WIDTH = 500
 FRAME_HEIGHT = 200
 # HSV thresholds
-BLUE_LOW = [105, 50, 50]
-BLUE_HIGH = [125, 255, 255]
-YELLOW_LOW = [25, 130, 130]
-YELLOW_HIGH = [38, 255, 255]
+BLUE_HSV_LOW = [164, 24, 100]
+BLUE_HSV_HIGH = [178, 40, 255]
+YELLOW_HSV_LOW = [35, 58, 100]
+YELLOW_HSV_HIGH = [40, 80, 255]
 
 # Chromaticity thresholds
-# format: [r_min, r_max, b_min, b_max]
-Y_THOLD = [0.35,  0.45,  0,  0.3];
-B_THOLD = [0,  0.25,  0.45, 1];
+# format: [b, g, r]
+YELLOW_CHROMA_LOW = [66, 77, 102]
+YELLOW_CHROMA_HIGH = [76, 82, 107]
+BLUE_CHROMA_LOW = [66, 77, 102]
+BLUE_CHROMA_HIGH = [76, 82, 107]

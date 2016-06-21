@@ -18,13 +18,13 @@ for i = 1:21;
     b = B./Y;
     
     chroma{i} = im{i};
-    chroma{i}(:,:,1) = r;
+    chroma{i}(:,:,1) = b;
     chroma{i}(:,:,2) = g;
-    chroma{i}(:,:,3) = b;
+    chroma{i}(:,:,3) = r;
 
     blue{i} = (r > 0.12) & (r < 0.16) & (g > 0.3) & (g < 0.34) & (b > 0.38) & (b < 0.6);
     yellow{i} = (r > 0.38) & (r < 0.43) & (g > 0.34) & (g < 0.4) & (b > 0.18) & (b < 0.27);
     
-    figure(i);  
-    idisp([blue{i} yellow{i}]);
+    %figure(i);  
+    %idisp([blue{i} yellow{i}]);
 end

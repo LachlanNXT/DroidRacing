@@ -14,7 +14,7 @@ cv2.createTrackbar('HoughMinLen', window_name, 0, 50, callback)
 cv2.createTrackbar('HoughMaxGap', window_name, 0, 50, callback)
 
 # load image
-raw_im = cv2.imread("test_image_15.jpg")
+raw_im = cv2.imread("test_image_5.jpg")
 # make image smaller
 h, w = raw_im.shape[:2]
 raw_im = cv2.resize(raw_im, (w/3, h/3), interpolation = cv2.INTER_LINEAR)
