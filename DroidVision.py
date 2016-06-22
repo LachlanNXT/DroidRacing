@@ -55,7 +55,7 @@ class DroidVisionThread(threading.Thread):
                 for line in lines:
                     x1,y1,x2,y2 = line[0]
                     angle = np.rad2deg(np.arctan2(y2-y1, x2-x1))
-                    if config.MIN_LINE_ANGLE < abs(angle) < confi.MAX_LINE_ANGLE:
+                    if config.MIN_LINE_ANGLE < abs(angle) < config.MAX_LINE_ANGLE:
                         if config.IMSHOW:
                             cv2.line(self.frame, (x1,y1), (x2,y2), (0,0,255), 2)
                         if angle > 0:
@@ -75,6 +75,8 @@ class DroidVisionThread(threading.Thread):
 
             self.last_blue_mean = blue_mean
             self.last_yellow_mean = yellow_mean
+
+            self.desired_steering = centre / self.w
 
             if config.IMSHOW:
                 cv2.circle(self.frame, (centre, self.h - 20), 10, (0,0,255), -1)
