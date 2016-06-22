@@ -23,6 +23,8 @@ class DroidVisionThread(threading.Thread):
         self.last_blue_mean = config.FRAME_WIDTH * 0.2
         self.desired_steering = 0.5 # 0 = left, 0.5 = center, 1 = right
         self.desired_throttle = 0 # 0 = stop, 0.5 = medium speed, 1 = fastest
+        self.h = config.FRAME_HEIGHT
+        self.w = config.FRAME_WIDTH
 
     def run(self):
         debug("DroidVisionThread: Thread started")
@@ -39,8 +41,8 @@ class DroidVisionThread(threading.Thread):
         while self.running:
             self.grab_frame()
             # colour
-            blue_mask = colour_threshold(chroma, config.BLUE_CHROMA_LOW, config.BLUE_CHROMA_HIGH)
-            yellow_mask = colour_threshold(chroma, config.YELLOW_CHROMA_LOW, config.YELLOW_CHROMA_HIGH)
+            blue_mask = self.colour_threshold(chroma, config.BLUE_CHROMA_LOW, config.BLUE_CHROMA_HIGH)
+            yellow_mask = self.colour_threshold(chroma, config.YELLOW_CHROMA_LOW, config.YELLOW_CHROMA_HIGH)
             colour_mask = cv2.bitwise_or(blue_mask, yellow_mask)
             colour_mask = cv2.erode(colour_mask, config.ERODE_KERNEL)
             colour_mask = cv2.dilate(colour_mask, config.DILATE_KERNEL)
@@ -61,12 +63,18 @@ class DroidVisionThread(threading.Thread):
                         elif angle < 0:
                             blue_lines = np.append(blue_lines, [x1, x2])
 
-            if len(blue_lines) and len(yellow_lines):
-                centre = int(np.mean(blue_lines) + np.mean(yellow_lines)) / 2
-            elif len(blue_lines):
-                centre = int(np.mean(blue_lines) + self.last_yellow_mean) / 2
-            else:
-                centre = int(self.last_blue_mean + np.mean(yellow_lines)) / 2
+            # find centre
+            blue_mean = self.last_blue_mean
+            yellow_mean = self.last_yellow_mean
+            if len(blue_lines):
+                blue_mean = int(np.mean(blue_lines))
+            if len(yellow_lines):
+                yellow_mean = int(np.mean(yellow_lines))
+
+            centre = (blue_mean + yellow_mean) / 2
+
+            self.last_blue_mean = blue_mean
+            self.last_yellow_mean = yellow_mean
 
             if config.IMSHOW:
                 cv2.circle(self.frame, (centre, h - 20), 10, (0,0,255), -1)
@@ -77,14 +85,13 @@ class DroidVisionThread(threading.Thread):
     def grab_frame(self):
         self.frame = self.camera.read()
         self.fps_counter.update()
-        self.frame_chroma = chromaticity(self.frame)
+        self.frame_chroma = self.chromaticity(self.frame)
 
     def colour_threshold(self, image, low, high):
         return cv2.inRange(image, np.array(low), np.array(high))
 
     def chromaticity(self, image):
         image = image.astype(np.uint16)
-        h,w = image.shape[:2]
         B = image[:, :, 0]
         G = image[:, :, 1]
         R = image[:, :, 2]
