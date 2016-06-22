@@ -1,4 +1,5 @@
 #!/usr/bin/python3.4
+import numpy as np
 
 # global config
 DEBUG = True
@@ -27,7 +28,7 @@ YELLOW_HSV_LOW = [35, 58, 100]
 YELLOW_HSV_HIGH = [40, 80, 255]
 # Hough Line Transform
 HOUGH_LIN_RES = 1
-HOUGH_ROT_RES = 3.14159/180
+HOUGH_ROT_RES = np.pi/180
 HOUGH_VOTES = 40
 HOUGH_MIN_LEN = 20
 HOUGH_MAX_GAP = 10
