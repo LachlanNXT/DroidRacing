@@ -18,7 +18,9 @@ class DroidVisionThread(threading.Thread):
         self.camera.start()
         time.sleep(2) # wait for camera to initialise
         self.frame = None
-        self.frame_hsv = None
+        self.frame_chroma = None
+        self.last_yellow_mean = config.FRAME_WIDTH * 0.8
+        self.last_blue_mean = config.FRAME_WIDTH * 0.2
         self.desired_steering = 0.5 # 0 = left, 0.5 = center, 1 = right
         self.desired_throttle = 0 # 0 = stop, 0.5 = medium speed, 1 = fastest
 
@@ -36,25 +38,65 @@ class DroidVisionThread(threading.Thread):
     def vision_processing(self):
         while self.running:
             self.grab_frame()
-            ## HSV
-            self.frame_hsv = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
-            blue_mask = self.colour_threshold(self.frame_hsv, config.BLUE_LOW, config.BLUE_HIGH)
-            yellow_mask = self.colour_threshold(self.frame_hsv, config.YELLOW_LOW, config.YELLOW_HIGH)
+            # colour
+            blue_mask = colour_threshold(chroma, config.BLUE_CHROMA_LOW, config.BLUE_CHROMA_HIGH)
+            yellow_mask = colour_threshold(chroma, config.YELLOW_CHROMA_LOW, config.YELLOW_CHROMA_HIGH)
+            colour_mask = cv2.bitwise_or(blue_mask, yellow_mask)
+            colour_mask = cv2.erode(colour_mask, config.ERODE_KERNEL)
+            colour_mask = cv2.dilate(colour_mask, config.DILATE_KERNEL)
 
-            # INSERT ALGORITHMS FOR FINDING DESIRED STEERING ANGLE AND THROTTLE HERE
-            # put those values into self.desired_steering and self.desired_throttle
+            # lines
+            lines = cv2.HoughLinesP(colour_mask, config.HOUGH_LIN_RES, config.HOUGH_ROT_RES, config.HOUGH_VOTES, config.HOUGH_MIN_LEN, config.HOUGH_MAX_GAP)
+            blue_lines = np.array([])
+            yellow_lines = np.array([])
+            if lines != None:
+                for line in lines:
+                    x1,y1,x2,y2 = line[0]
+                    angle = np.rad2deg(np.arctan2(y2-y1, x2-x1))
+                    if config.MIN_LINE_ANGLE < abs(angle) < confi.MAX_LINE_ANGLE:
+                        if config.IMSHOW:
+                            cv2.line(self.frame, (x1,y1), (x2,y2), (0,0,255), 2)
+                        if angle > 0:
+                            yellow_lines = np.append(yellow_lines, [x1, x2])
+                        elif angle < 0:
+                            blue_lines = np.append(blue_lines, [x1, x2])
+
+            if len(blue_lines) and len(yellow_lines):
+                centre = int(np.mean(blue_lines) + np.mean(yellow_lines)) / 2
+            elif len(blue_lines):
+                centre = int(np.mean(blue_lines) + self.last_yellow_mean) / 2
+            else:
+                centre = int(self.last_blue_mean + np.mean(yellow_lines)) / 2
 
             if config.IMSHOW:
-                cv2.imshow("blue mask | yellow mask", np.hstack((blue_mask, yellow_mask)))
+                cv2.circle(self.frame, (centre, h - 20), 10, (0,0,255), -1)
+                cv2.imshow("colour_mask without noise", colour_mask)
                 cv2.imshow("raw frame", self.frame)
                 cv2.waitKey(1)
 
     def grab_frame(self):
         self.frame = self.camera.read()
         self.fps_counter.update()
+        self.frame_chroma = chromaticity(self.frame)
 
     def colour_threshold(self, image, low, high):
         return cv2.inRange(image, np.array(low), np.array(high))
+
+    def chromaticity(self, image):
+        image = image.astype(np.uint16)
+        h,w = image.shape[:2]
+        B = image[:, :, 0]
+        G = image[:, :, 1]
+        R = image[:, :, 2]
+        Y = (B + G + R).astype(float)
+        b = B / Y
+        g = G / Y
+        r = R / Y
+        image = np.zeros((h, w, 3), np.uint8)
+        image[:, :, 0] = b * 255
+        image[:, :, 1] = g * 255
+        image[:, :, 2] = r * 255
+        return image
 
     def get_fps(self):
         self.fps_counter.stop()

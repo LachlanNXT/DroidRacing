@@ -25,16 +25,6 @@ def colour_threshold(image, low, high):
 def callback(x):
     pass
 
-window_name = "Vision Testing"
-cv2.namedWindow(window_name)
-# cv2.createTrackbar('CannyMin', window_name, 1, 1000, callback)
-# cv2.createTrackbar('CannyMax', window_name, 1, 1000, callback)
-# cv2.createTrackbar('HoughLinRes', window_name, 1, 500, callback)
-# cv2.createTrackbar('HoughRotRes', window_name, 1, 180, callback)
-# cv2.createTrackbar('HoughVotes', window_name, 1, 1000, callback)
-# cv2.createTrackbar('HoughMinLen', window_name, 0, 50, callback)
-# cv2.createTrackbar('HoughMaxGap', window_name, 0, 50, callback)
-
 # load image
 raw_im = cv2.imread("test_image_4.jpg")
 # make image smaller
@@ -46,18 +36,10 @@ raw_im = raw_im[int(0.4*h):int(0.55*h), int(0.1*w):int(0.9*w)]
 h, w = raw_im.shape[:2]
 
 while (1):
-    CannyMin = 120 #cv2.getTrackbarPos('CannyMin', window_name)
-    CannyMax = 160 #cv2.getTrackbarPos('CannyMax', window_name)
-    HoughLinRes = 1 #cv2.getTrackbarPos('HoughLinRes', window_name)
-    HoughRotRes = 180 #cv2.getTrackbarPos('HoughRotRes', window_name)
-    HoughVotes = 40 #cv2.getTrackbarPos('HoughVotes', window_name)
-    HoughMinLen = 20 #cv2.getTrackbarPos('HoughMinLen', window_name)
-    HoughMaxGap = 10 #cv2.getTrackbarPos('HoughMaxGap', window_name)
-
     im = raw_im.copy()
 
     # edge detection
-    edges = cv2.Canny(im, CannyMin, CannyMax, apertureSize=3)
+    #edges = cv2.Canny(im, CannyMin, CannyMax, apertureSize=3)
     
     # colour thresholding
     chroma = chromaticity(im)
@@ -71,7 +53,7 @@ while (1):
     colour_mask = cv2.dilate(colour_mask, np.ones((5,5), np.uint8))
 
     # line detection
-    lines = cv2.HoughLinesP(colour_mask, HoughLinRes, np.pi/HoughRotRes, HoughVotes, minLineLength=HoughMinLen, maxLineGap=HoughMaxGap)
+    lines = cv2.HoughLinesP(colour_mask, config.HOUGH_LIN_RES, config.HOUGH_ROT_RES, config.HOUGH_VOTES, config.HOUGH_MIN_LEN, config.HOUGH_MAX_GAP)
     line_x_hist = np.transpose(np.vstack((lines[:,:,0], lines[:,:,2])))[0]
 
     # histogram 
@@ -106,9 +88,8 @@ while (1):
         centre = int(last_blue_mean + np.mean(yellow_lines)) / 2
     cv2.circle(im, (centre, h - 20), 10, (0,0,255), -1)
 
-    cv2.imshow(window_name, im)
+    cv2.imshow("im", im)
     cv2.imshow("color_mask without noise", colour_mask)
-    cv2.imshow("edges", edges)
     if cv2.waitKey(1) & 0xFF == 27:
         break
 
