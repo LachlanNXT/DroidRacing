@@ -41,8 +41,8 @@ class DroidVisionThread(threading.Thread):
         while self.running:
             self.grab_frame()
             # colour
-            blue_mask = self.colour_threshold(chroma, config.BLUE_CHROMA_LOW, config.BLUE_CHROMA_HIGH)
-            yellow_mask = self.colour_threshold(chroma, config.YELLOW_CHROMA_LOW, config.YELLOW_CHROMA_HIGH)
+            blue_mask = self.colour_threshold(self.frame_chroma, config.BLUE_CHROMA_LOW, config.BLUE_CHROMA_HIGH)
+            yellow_mask = self.colour_threshold(self.frame_chroma, config.YELLOW_CHROMA_LOW, config.YELLOW_CHROMA_HIGH)
             colour_mask = cv2.bitwise_or(blue_mask, yellow_mask)
             colour_mask = cv2.erode(colour_mask, config.ERODE_KERNEL)
             colour_mask = cv2.dilate(colour_mask, config.DILATE_KERNEL)
