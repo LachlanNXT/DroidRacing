@@ -77,7 +77,7 @@ class DroidVisionThread(threading.Thread):
             self.last_yellow_mean = yellow_mean
 
             if config.IMSHOW:
-                cv2.circle(self.frame, (centre, h - 20), 10, (0,0,255), -1)
+                cv2.circle(self.frame, (centre, self.h - 20), 10, (0,0,255), -1)
                 cv2.imshow("colour_mask without noise", colour_mask)
                 cv2.imshow("raw frame", self.frame)
                 cv2.waitKey(1)
@@ -99,7 +99,7 @@ class DroidVisionThread(threading.Thread):
         b = B / Y
         g = G / Y
         r = R / Y
-        image = np.zeros((h, w, 3), np.uint8)
+        image = np.zeros((self.h, self.w, 3), np.uint8)
         image[:, :, 0] = b * 255
         image[:, :, 1] = g * 255
         image[:, :, 2] = r * 255
