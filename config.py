@@ -4,7 +4,7 @@ import numpy as np
 # global config
 DEBUG = True
 DEBUG_MODE = "PRINT" # use either PRINT or FILE
-IMSHOW = True
+IMSHOW = False
 
 # used by Main
 MIN_THROTTLE = 1500
@@ -19,8 +19,8 @@ SERIAL_TIMEOUT = 0.1 # seconds
 QUEUE_SLEEP_TIME = 0.025 # seconds
 
 # used by DroidVision
-FRAME_WIDTH = 800
-FRAME_HEIGHT = 120
+FRAME_WIDTH = 1000
+FRAME_HEIGHT = 300
 # HSV thresholds
 BLUE_HSV_LOW = [164, 24, 100]
 BLUE_HSV_HIGH = [178, 40, 255]
@@ -33,7 +33,7 @@ HOUGH_VOTES = 40
 HOUGH_MIN_LEN = 20
 HOUGH_MAX_GAP = 10
 # line sorting stuff
-MIN_LINE_ANGLE = 20
+MIN_LINE_ANGLE = 5
 MAX_LINE_ANGLE = 90
 # morphological stuff
 ERODE_KERNEL = np.ones((2,2), np.uint8)

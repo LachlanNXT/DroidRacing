@@ -71,21 +71,26 @@ class DroidVisionThread(threading.Thread):
             if len(yellow_lines):
                 yellow_mean = int(np.mean(yellow_lines))
 
-            centre = (blue_mean + yellow_mean) / 2
+            centre = int((blue_mean + yellow_mean) / 2)
 
             self.last_blue_mean = blue_mean
             self.last_yellow_mean = yellow_mean
 
-            self.desired_steering = centre / self.w
+            self.desired_steering = (1 - (centre / self.frame.shape[1]))
+            if len(blue_lines) or len(yellow_lines):
+                self.desired_throttle = 0.22
+            else:
+                self.desired_throttle = 0
 
             if config.IMSHOW:
-                cv2.circle(self.frame, (centre, self.h - 20), 10, (0,0,255), -1)
+                cv2.circle(self.frame, (centre, int(self.frame.shape[0] - 20)), 10, (0,0,255), -1)
                 cv2.imshow("colour_mask without noise", colour_mask)
                 cv2.imshow("raw frame", self.frame)
                 cv2.waitKey(1)
 
     def grab_frame(self):
         self.frame = self.camera.read()
+        self.frame = self.frame[int(0.5*self.h):int(0.9*self.h), int(0.15*self.w):int(0.85*self.w)]
         self.fps_counter.update()
         self.frame_chroma = self.chromaticity(self.frame)
 
@@ -101,7 +106,8 @@ class DroidVisionThread(threading.Thread):
         b = B / Y
         g = G / Y
         r = R / Y
-        image = np.zeros((self.h, self.w, 3), np.uint8)
+        h,w = image.shape[:2]
+        image = np.zeros((h, w, 3), np.uint8)
         image[:, :, 0] = b * 255
         image[:, :, 1] = g * 255
         image[:, :, 2] = r * 255
