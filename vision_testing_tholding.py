@@ -22,7 +22,7 @@ def colour_threshold(image, low, high):
     return cv2.inRange(image, np.array(low), np.array(high))
 
 # load image
-raw_im = cv2.imread("test_image_5.jpg")
+raw_im = cv2.imread("test_image_4.jpg")
 # make image smaller
 h, w = raw_im.shape[:2]
 raw_im = cv2.resize(raw_im, (w/3, h/3), interpolation = cv2.INTER_LINEAR)
@@ -33,10 +33,6 @@ raw_im = raw_im[int(0.4*h):int(0.6*h), :]
 chroma = chromaticity(raw_im)
 blue_mask = colour_threshold(chroma, config.BLUE_CHROMA_LOW, config.BLUE_CHROMA_HIGH)
 yellow_mask = colour_threshold(chroma, config.YELLOW_CHROMA_LOW, config.YELLOW_CHROMA_HIGH)
-
-# im_hsv = cv2.cvtColor(raw_im, cv2.COLOR_BGR2HSV)
-# blue_mask = colour_threshold(im_hsv, config.BLUE_LOW, config.BLUE_HIGH)
-# yellow_mask = colour_threshold(im_hsv, config.YELLOW_LOW, config.YELLOW_HIGH)
 
 cv2.imshow("blue mask | yellow mask", np.hstack((blue_mask, yellow_mask)))
 cv2.imshow("Chromaticity", chroma)
