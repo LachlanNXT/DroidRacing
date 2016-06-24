@@ -14,15 +14,15 @@ class DroidVisionThread(threading.Thread):
         threading.Thread.__init__(self)
         self.running = True
         self.fps_counter = FPS().start()
-        self.camera = PiVideoStream(resolution=(config.RAW_FRAME_WIDTH, config.FRAME_HEIGHT))
+        self.camera = PiVideoStream(resolution=(config.RAW_FRAME_WIDTH, config.RAW_FRAME_HEIGHT))
         self.camera.start()
         time.sleep(config.CAMERA_WARMUP_TIME) # wait for camera to initialise
         self.frame = None
         self.frame_chroma = None
-        self.last_yellow_mean = config.
-        self.last_blue_mean = config.RAW_FRAME_WIDTH * 0.2
-        self.desired_steering = 0.5 # 0 = left, 0.5 = center, 1 = right
-        self.desired_throttle = 0 # 0 = stop, 0.5 = medium speed, 1 = fastest
+        self.last_yellow_mean = config.WIDTH * 0.8
+        self.last_blue_mean = config.WIDTH * 0.2
+        self.desired_steering = config.NEUTRAL_STEERING # 0 = left, 0.5 = center, 1 = right
+        self.desired_throttle = config.NEUTRAL_THROTTLE # 0 = stop, 0.5 = medium speed, 1 = fastest
 
     def run(self):
         debug("DroidVisionThread: Thread started")
@@ -68,26 +68,26 @@ class DroidVisionThread(threading.Thread):
                 blue_mean = int(np.mean(blue_lines))
             if len(yellow_lines):
                 yellow_mean = int(np.mean(yellow_lines))
-            centre = int((blue_mean + yellow_mean) / 2)
+            centre = (blue_mean + yellow_mean) / 2.0
             self.last_blue_mean = blue_mean
             self.last_yellow_mean = yellow_mean
 
             # set steering and throttle
-            self.desired_steering = (1 - (centre / self.frame.shape[1]))
+            self.desired_steering = (1.0 - (centre / config.WIDTH))
             if len(blue_lines) or len(yellow_lines):
                 self.desired_throttle = 0.22
             else:
                 self.desired_throttle = 0
 
             if config.IMSHOW:
-                cv2.circle(self.frame, (centre, int(self.frame.shape[0] - 20)), 10, (0,0,255), -1)
+                cv2.circle(self.frame, (int(centre), config.HEIGHT - 20), 10, (0,0,255), -1)
                 cv2.imshow("colour_mask without noise", colour_mask)
                 cv2.imshow("raw frame", self.frame)
                 cv2.waitKey(1)
 
     def grab_frame(self):
         self.fps_counter.update()
-        # grab latest frame and index out the ROI
+        # grab latest frame and index the ROI
         self.frame = self.camera.read()[config.ROI_YMIN:config.ROI_YMAX, config.ROI_XMIN:config.ROI_XMAX]
         # convert to chromaticity colourspace
         B = self.frame[:, :, 0].astype(np.uint16)
