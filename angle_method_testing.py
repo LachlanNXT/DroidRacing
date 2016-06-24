@@ -34,7 +34,7 @@ def intersection(L1, L2):
         return False
 
 # load image
-raw_im = cv2.imread("test_image_8.jpg")
+raw_im = cv2.imread("test_image_20.jpg")
 # make image smaller
 h, w = raw_im.shape[:2]
 raw_im = cv2.resize(raw_im, (w/2, h/2), interpolation = cv2.INTER_LINEAR)
@@ -55,38 +55,46 @@ while (1):
     colour_mask = cv2.erode(colour_mask, np.ones((2,2), np.uint8))
     colour_mask = cv2.dilate(colour_mask, np.ones((5,5), np.uint8))
 
-    # line detection
+    # lines
     lines = cv2.HoughLinesP(colour_mask, config.HOUGH_LIN_RES, config.HOUGH_ROT_RES, config.HOUGH_VOTES, config.HOUGH_MIN_LEN, config.HOUGH_MAX_GAP)
-
-    # show lines from HoughLines
-    sum_blue_angle = 0.0
-    sum_yellow_angle = 0.0
-    num_blue_angles = 0
-    num_yellow_angles = 0
-    if lines.shape[0] > 0:
-        for n in range()
+    
+    yellow = np.zeros(4, np.int32)
+    blue = np.zeros(4, np.int32)
+    yellow_n = 0
+    blue_n = 0
+    if lines != None:
+        for line in lines:
             x1,y1,x2,y2 = line[0]
             angle = np.rad2deg(np.arctan2(y2-y1, x2-x1))
-            if angle > 0:
-                sum_yellow_angle += abs(angle)
-                num_yellow_angles += 1
-            elif angle < 0:
-                sum_blue_angle += abs(angle)
-                num_blue_angles += 1
-            if 20 < abs(angle) < 90:
-                cv2.line(im, (x1,y1), (x2,y2), (0,0,255), 2)
+            if config.MIN_LINE_ANGLE < abs(angle) < config.MAX_LINE_ANGLE:
+                if angle > 0:
+                    yellow += line[0]
+                    yellow_n += 1
+                elif angle < 0:
+                    blue += line[0]
+                    blue_n += 1
+                if config.IMSHOW:
+                    cv2.line(im, (x1,y1), (x2,y2), (0,0,255), 1)
 
-    last_yellow_mean = 20
-    last_blue_mean = -20
-
-    if len(blue_lines) and len(yellow_lines):
-        centre = int(np.mean(blue_lines) + np.mean(yellow_lines)) / 2
-    elif len(blue_lines):
-        centre = int(np.mean(blue_lines) + last_yellow_mean) / 2
+    if yellow_n > 0:
+        yellow /= yellow_n
     else:
-        centre = int(last_blue_mean + np.mean(yellow_lines)) / 2
-    cv2.circle(im, (centre, h - 20), 10, (0,0,255), -1)
+        yellow = np.array([978, 76, 1003, 90]) # replace with last_yellow
 
+    if blue_n > 0:
+        blue /= blue_n
+    else:
+        blue = np.array([99, 94, 130, 76]) # replace with last_blue
+
+    yellow_line = line_coefs(yellow[:2], yellow[2:])
+    blue_line = line_coefs(blue[:2], blue[2:])
+    inter = intersection(blue_line, yellow_line)
+    if inter:
+        centre = int(inter[0])
+
+    cv2.line(im, tuple(yellow[:2]), tuple(yellow[2:]), (0, 255, 0), 2)
+    cv2.line(im, tuple(blue[:2]), tuple(blue[2:]), (0, 255, 0), 2)
+    cv2.circle(im, (centre, h - 20), 10, (255,0,0), -1)
     cv2.imshow("im", im)
     cv2.imshow("color_mask without noise", colour_mask)
     if cv2.waitKey(1) & 0xFF == 27:

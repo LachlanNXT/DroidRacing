@@ -49,13 +49,13 @@ class DroidVisionThread(threading.Thread):
             lines = cv2.HoughLinesP(colour_mask, config.HOUGH_LIN_RES, config.HOUGH_ROT_RES, config.HOUGH_VOTES, config.HOUGH_MIN_LEN, config.HOUGH_MAX_GAP)
             blue_lines = np.array([])
             yellow_lines = np.array([])
-            if lines.shape[0] > 0:
+            if lines != None:
                 for line in lines:
                     x1,y1,x2,y2 = line[0]
                     angle = np.rad2deg(np.arctan2(y2-y1, x2-x1))
                     if config.MIN_LINE_ANGLE < abs(angle) < config.MAX_LINE_ANGLE:
                         if config.IMSHOW:
-                            cv2.line(self.frame, (x1,y1), (x2,y2), (0,0,255), 2)
+                            cv2.line(self.frame, (x1,y1), (x2,y2), (0,0,255), 1)
                         if angle > 0:
                             yellow_lines = np.append(yellow_lines, [x1, x2])
                         elif angle < 0:
