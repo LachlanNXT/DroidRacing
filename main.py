@@ -29,19 +29,23 @@ droid.start()
 vision = DroidVision.DroidVisionThread()
 vision.start()
 
+last_steering = 0.5
+last_throttle = 0
+
 while True:
     try:
-        # get latest steering and throttle update
+        # only add new steering and throttle commands to queue if
+        # they have been updated by vision thread
         steering, throttle = vision.get_steering_throttle()
-
-        #debug(str(steering) + " " + str(throttle))
-
-        # add desired outputs to the queue to be sent to arduino
-        set_steering_throttle(steering, throttle)
-        time.sleep(config.QUEUE_SLEEP_TIME * 10)
+        if steering != last_steering || throttle != last_throttle:
+            set_steering_throttle(steering, throttle)
+            last_steering = steering
+            last_throttle = throttle
     except KeyboardInterrupt:
         debug("Main: KeyboardInterrupt - stopping")
         break
+
+# end program and cleanup
 set_steering_throttle(0.5, 0)
 debug("Main: Average FPS: " + str(vision.get_fps()))
 debug("Main: joining threads")

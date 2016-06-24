@@ -4,7 +4,7 @@ import numpy as np
 # global config
 DEBUG = True
 DEBUG_MODE = "PRINT" # use either PRINT or FILE
-IMSHOW = False
+IMSHOW = True
 
 # used by Main
 MIN_THROTTLE = 1500
@@ -18,30 +18,33 @@ SERIAL_BAUD_RATE = 115200
 SERIAL_TIMEOUT = 0.1 # seconds
 QUEUE_SLEEP_TIME = 0.025 # seconds
 
-# used by DroidVision
-FRAME_WIDTH = 1000
-FRAME_HEIGHT = 300
-# HSV thresholds
-BLUE_HSV_LOW = [164, 24, 100]
-BLUE_HSV_HIGH = [178, 40, 255]
-YELLOW_HSV_LOW = [35, 58, 100]
-YELLOW_HSV_HIGH = [40, 80, 255]
+# camera and image stuff
+CAMERA_WARMUP_TIME = 2
+RAW_FRAME_WIDTH = 1000
+RAW_FRAME_HEIGHT = 300
+ROI_YMIN = int(0.5 * RAW_FRAME_HEIGHT)
+ROI_YMAX = int(0.9 * RAW_FRAME_HEIGHT)
+ROI_XMIN = int(0.15 * RAW_FRAME_WIDTH)
+ROI_XMAX = int(0.85 * RAW_FRAME_WIDTH)
+
 # Hough Line Transform
 HOUGH_LIN_RES = 1
 HOUGH_ROT_RES = np.pi/180
 HOUGH_VOTES = 40
 HOUGH_MIN_LEN = 20
 HOUGH_MAX_GAP = 10
+
 # line sorting stuff
-MIN_LINE_ANGLE = 5
+MIN_LINE_ANGLE = 10
 MAX_LINE_ANGLE = 90
+
 # morphological stuff
 ERODE_KERNEL = np.ones((2,2), np.uint8)
 DILATE_KERNEL = np.ones((5,5), np.uint8)
 
 # Chromaticity thresholds
 # format: [b, g, r]
-YELLOW_CHROMA_LOW = [0, 90, 90]
-YELLOW_CHROMA_HIGH = [70, 130, 130]
-BLUE_CHROMA_LOW = [90, 0, 0]
-BLUE_CHROMA_HIGH = [130, 100, 100]
+YELLOW_CHROMA_LOW = np.array([0, 90, 90])
+YELLOW_CHROMA_HIGH = np.array([70, 130, 130])
+BLUE_CHROMA_LOW = np.array([90, 0, 0])
+BLUE_CHROMA_HIGH = np.array([130, 100, 100])

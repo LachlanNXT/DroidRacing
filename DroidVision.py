@@ -14,17 +14,15 @@ class DroidVisionThread(threading.Thread):
         threading.Thread.__init__(self)
         self.running = True
         self.fps_counter = FPS().start()
-        self.camera = PiVideoStream(resolution=(config.FRAME_WIDTH, config.FRAME_HEIGHT))
+        self.camera = PiVideoStream(resolution=(config.RAW_FRAME_WIDTH, config.FRAME_HEIGHT))
         self.camera.start()
-        time.sleep(2) # wait for camera to initialise
+        time.sleep(config.CAMERA_WARMUP_TIME) # wait for camera to initialise
         self.frame = None
         self.frame_chroma = None
-        self.last_yellow_mean = config.FRAME_WIDTH * 0.8
-        self.last_blue_mean = config.FRAME_WIDTH * 0.2
+        self.last_yellow_mean = config.
+        self.last_blue_mean = config.RAW_FRAME_WIDTH * 0.2
         self.desired_steering = 0.5 # 0 = left, 0.5 = center, 1 = right
         self.desired_throttle = 0 # 0 = stop, 0.5 = medium speed, 1 = fastest
-        self.h = config.FRAME_HEIGHT
-        self.w = config.FRAME_WIDTH
 
     def run(self):
         debug("DroidVisionThread: Thread started")
@@ -40,9 +38,9 @@ class DroidVisionThread(threading.Thread):
     def vision_processing(self):
         while self.running:
             self.grab_frame()
-            # colour
-            blue_mask = self.colour_threshold(self.frame_chroma, config.BLUE_CHROMA_LOW, config.BLUE_CHROMA_HIGH)
-            yellow_mask = self.colour_threshold(self.frame_chroma, config.YELLOW_CHROMA_LOW, config.YELLOW_CHROMA_HIGH)
+            # colour mask
+            blue_mask = cv2.inRange(self.frame_chroma, config.BLUE_CHROMA_LOW, config.BLUE_CHROMA_HIGH)
+            yellow_mask = cv2.inRange(self.frame_chroma, config.YELLOW_CHROMA_LOW, config.YELLOW_CHROMA_HIGH)
             colour_mask = cv2.bitwise_or(blue_mask, yellow_mask)
             colour_mask = cv2.erode(colour_mask, config.ERODE_KERNEL)
             colour_mask = cv2.dilate(colour_mask, config.DILATE_KERNEL)
@@ -70,12 +68,11 @@ class DroidVisionThread(threading.Thread):
                 blue_mean = int(np.mean(blue_lines))
             if len(yellow_lines):
                 yellow_mean = int(np.mean(yellow_lines))
-
             centre = int((blue_mean + yellow_mean) / 2)
-
             self.last_blue_mean = blue_mean
             self.last_yellow_mean = yellow_mean
 
+            # set steering and throttle
             self.desired_steering = (1 - (centre / self.frame.shape[1]))
             if len(blue_lines) or len(yellow_lines):
                 self.desired_throttle = 0.22
@@ -89,29 +86,18 @@ class DroidVisionThread(threading.Thread):
                 cv2.waitKey(1)
 
     def grab_frame(self):
-        self.frame = self.camera.read()
-        self.frame = self.frame[int(0.5*self.h):int(0.9*self.h), int(0.15*self.w):int(0.85*self.w)]
         self.fps_counter.update()
-        self.frame_chroma = self.chromaticity(self.frame)
-
-    def colour_threshold(self, image, low, high):
-        return cv2.inRange(image, np.array(low), np.array(high))
-
-    def chromaticity(self, image):
-        image = image.astype(np.uint16)
-        B = image[:, :, 0]
-        G = image[:, :, 1]
-        R = image[:, :, 2]
-        Y = (B + G + R).astype(float)
-        b = B / Y
-        g = G / Y
-        r = R / Y
-        h,w = image.shape[:2]
-        image = np.zeros((h, w, 3), np.uint8)
-        image[:, :, 0] = b * 255
-        image[:, :, 1] = g * 255
-        image[:, :, 2] = r * 255
-        return image
+        # grab latest frame and index out the ROI
+        self.frame = self.camera.read()[config.ROI_YMIN:config.ROI_YMAX, config.ROI_XMIN:config.ROI_XMAX]
+        # convert to chromaticity colourspace
+        B = self.frame[:, :, 0].astype(np.uint16)
+        G = self.frame[:, :, 1].astype(np.uint16)
+        R = self.frame[:, :, 2].astype(np.uint16)    
+        Y = 255.0 / (B + G + R)
+        b = (B * Y).astype(np.uint8)
+        g = (G * Y).astype(np.uint8)
+        r = (R * Y).astype(np.uint8)
+        self.frame_chrome = cv2.merge((b,g,r))
 
     def get_fps(self):
         self.fps_counter.stop()
