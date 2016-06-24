@@ -49,7 +49,7 @@ class DroidVisionThread(threading.Thread):
             lines = cv2.HoughLinesP(colour_mask, config.HOUGH_LIN_RES, config.HOUGH_ROT_RES, config.HOUGH_VOTES, config.HOUGH_MIN_LEN, config.HOUGH_MAX_GAP)
             blue_lines = np.array([])
             yellow_lines = np.array([])
-            if lines != None:
+            if lines.shape[0] > 0:
                 for line in lines:
                     x1,y1,x2,y2 = line[0]
                     angle = np.rad2deg(np.arctan2(y2-y1, x2-x1))

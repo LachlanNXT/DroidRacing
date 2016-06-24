@@ -16,8 +16,22 @@ def chromaticity(image):
 def colour_threshold(image, low, high):
     return cv2.inRange(image, np.array(low), np.array(high))
 
-def callback(x):
-    pass
+def line_coefs(p1, p2):
+    A = (p1[1] - p2[1])
+    B = (p2[0] - p1[0])
+    C = (p1[0]*p2[1] - p2[0]*p1[1])
+    return A, B, -C
+
+def intersection(L1, L2):
+    D  = L1[0] * L2[1] - L1[1] * L2[0]
+    Dx = L1[2] * L2[1] - L1[1] * L2[2]
+    Dy = L1[0] * L2[2] - L1[2] * L2[0]
+    if D != 0:
+        x = Dx / float(D)
+        y = Dy / float(D)
+        return x,y
+    else:
+        return False
 
 # load image
 raw_im = cv2.imread("test_image_8.jpg")
@@ -31,9 +45,6 @@ h, w = raw_im.shape[:2]
 
 while (1):
     im = raw_im.copy()
-
-    # edge detection
-    #edges = cv2.Canny(im, CannyMin, CannyMax, apertureSize=3)
     
     # colour thresholding
     chroma = chromaticity(im)
@@ -41,39 +52,32 @@ while (1):
     yellow_mask = colour_threshold(chroma, config.YELLOW_CHROMA_LOW, config.YELLOW_CHROMA_HIGH)
     colour_mask = cv2.bitwise_or(blue_mask, yellow_mask)
     cv2.imshow("colour_mask with noise", colour_mask)
-    #colour_mask = cv2.medianBlur(colour_mask, 3)
-    #colour_mask = cv2.morphologyEx(colour_mask, cv2.MORPH_OPEN, np.ones((2,2), np.uint8))
     colour_mask = cv2.erode(colour_mask, np.ones((2,2), np.uint8))
     colour_mask = cv2.dilate(colour_mask, np.ones((5,5), np.uint8))
 
     # line detection
     lines = cv2.HoughLinesP(colour_mask, config.HOUGH_LIN_RES, config.HOUGH_ROT_RES, config.HOUGH_VOTES, config.HOUGH_MIN_LEN, config.HOUGH_MAX_GAP)
-    #line_x_hist = np.transpose(np.vstack((lines[:,:,0], lines[:,:,2])))[0]
-
-    # histogram 
-    hist = colour_mask.sum(axis=0)
-
-    # show colour mask histogram
-    # for i in range(len(hist)):
-    #     cv2.line(im, (i, h), (i, h-(hist[i]/50)), (255,0,0), 1)
 
     # show lines from HoughLines
-    blue_lines = np.array([])
-    yellow_lines = np.array([])
-    if lines != None:
-        for line in lines:
+    sum_blue_angle = 0.0
+    sum_yellow_angle = 0.0
+    num_blue_angles = 0
+    num_yellow_angles = 0
+    if lines.shape[0] > 0:
+        for n in range()
             x1,y1,x2,y2 = line[0]
             angle = np.rad2deg(np.arctan2(y2-y1, x2-x1))
-            print angle
             if angle > 0:
-                yellow_lines = np.append(yellow_lines, [x1, x2])
+                sum_yellow_angle += abs(angle)
+                num_yellow_angles += 1
             elif angle < 0:
-                blue_lines = np.append(blue_lines, [x1, x2])
+                sum_blue_angle += abs(angle)
+                num_blue_angles += 1
             if 20 < abs(angle) < 90:
                 cv2.line(im, (x1,y1), (x2,y2), (0,0,255), 2)
 
-    last_yellow_mean = 990
-    last_blue_mean = 120
+    last_yellow_mean = 20
+    last_blue_mean = -20
 
     if len(blue_lines) and len(yellow_lines):
         centre = int(np.mean(blue_lines) + np.mean(yellow_lines)) / 2
