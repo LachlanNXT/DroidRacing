@@ -49,6 +49,7 @@ while True:
             set_steering_throttle(steering, throttle)
             last_steering = steering
             last_throttle = throttle
+        time.sleep(config.QUEUE_SLEEP_TIME * 2)
     except KeyboardInterrupt:
         debug("Main: KeyboardInterrupt - stopping")
         break
