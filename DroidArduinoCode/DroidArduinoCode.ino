@@ -46,9 +46,12 @@ void setup() {
 void loop() {
   // if controller switch is on, pi has control
   switchPulse = pulseIn(SWITCH_IN, HIGH, 40000);
-  if (switchPulse > 1500 || switchPulse == 0) {
+  if (switchPulse > 1800 || switchPulse == 0) {
     piControl = 1;
     digitalWrite(LED_PIN, HIGH);
+  } else if (switchPulse > 1200) {
+    piControl = 2;
+    digitalWrite(LED_PIN, LOW);
   } else {
     piControl = 0;
     digitalWrite(LED_PIN, LOW);
@@ -81,8 +84,8 @@ void loop() {
     }
     
     if (piControl) {
-      if (command == THROTTLE_COMMAND) {
-        throttle.writeMicroseconds(pulse);
+      if (command == THROTTLE_COMMAND && piControl != 2) {
+          throttle.writeMicroseconds(pulse);
       } else if (command == STEERING_COMMAND) {
         steering.writeMicroseconds(pulse);
       }
@@ -111,6 +114,8 @@ void loop() {
   if (!piControl) {
     throttle.writeMicroseconds(t_total/NUM_READINGS);
     steering.writeMicroseconds(s_total/NUM_READINGS);
+  } else if (piControl == 2) {
+    throttle.writeMicroseconds(t_total/NUM_READINGS);
   }
 }
 
