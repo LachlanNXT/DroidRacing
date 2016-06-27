@@ -52,3 +52,10 @@ YELLOW_CHROMA_LOW = np.array([0, 90, 90])
 YELLOW_CHROMA_HIGH = np.array([70, 130, 130])
 BLUE_CHROMA_LOW = np.array([90, 0, 0])
 BLUE_CHROMA_HIGH = np.array([130, 100, 100])
+PURPLE_CHROMA_LOW = np.array([  ])
+PURPLE_CHROMA_HIGH = np.array([   ]})
+
+# PID Loop
+Kp = 1;
+Ki = 0;
+Kd = 1;
