@@ -45,7 +45,7 @@ while True:
         # only add new steering and throttle commands to queue if
         # they have been updated by vision thread
         steering, throttle = vision.get_steering_throttle()
-        if steering != last_steering || throttle != last_throttle:
+        if steering != last_steering or throttle != last_throttle:
             set_steering_throttle(steering, throttle)
             last_steering = steering
             last_throttle = throttle
