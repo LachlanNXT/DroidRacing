@@ -19,8 +19,8 @@ class DroidVisionThread(threading.Thread):
         time.sleep(config.CAMERA_WARMUP_TIME) # wait for camera to initialise
         self.frame = None
         self.frame_chroma = None
-        self.last_yellow_mean = config.WIDTH * 0.8
-        self.last_blue_mean = config.WIDTH * 0.2
+        self.last_yellow_mean = 25.0
+        self.last_blue_mean = 25.0
         self.desired_steering = config.NEUTRAL_STEERING # 0 = left, 0.5 = center, 1 = right
         self.desired_throttle = config.NEUTRAL_THROTTLE # 0 = stop, 0.5 = medium speed, 1 = fastest
 
@@ -47,8 +47,11 @@ class DroidVisionThread(threading.Thread):
 
             # lines
             lines = cv2.HoughLinesP(colour_mask, config.HOUGH_LIN_RES, config.HOUGH_ROT_RES, config.HOUGH_VOTES, config.HOUGH_MIN_LEN, config.HOUGH_MAX_GAP)
-            blue_lines = np.array([])
-            yellow_lines = np.array([])
+
+            yellow_angle_sum = 0
+            yellow_angle_count = 0
+            blue_angle_sum = 0
+            blue_angle_count = 0
             if lines != None:
                 for line in lines:
                     x1,y1,x2,y2 = line[0]
@@ -57,30 +60,41 @@ class DroidVisionThread(threading.Thread):
                         if config.IMSHOW:
                             cv2.line(self.frame, (x1,y1), (x2,y2), (0,0,255), 1)
                         if angle > 0:
-                            yellow_lines = np.append(yellow_lines, [x1, x2])
+                            yellow_angle_sum += abs(angle)
+                            yellow_angle_count += 1
                         elif angle < 0:
-                            blue_lines = np.append(blue_lines, [x1, x2])
+                            blue_angle_sum += abs(angle)
+                            blue_angle_count += 1
 
-            # find centre
+            # find mean line angles from lines
             blue_mean = self.last_blue_mean
             yellow_mean = self.last_yellow_mean
-            if len(blue_lines):
-                blue_mean = int(np.mean(blue_lines))
-            if len(yellow_lines):
-                yellow_mean = int(np.mean(yellow_lines))
-            centre = (blue_mean + yellow_mean) / 2.0
+            if blue_angle_count:
+                blue_mean = blue_angle_sum / blue_angle_count
+            if yellow_angle_count:
+                yellow_mean = yellow_angle_sum / yellow_angle_count
             self.last_blue_mean = blue_mean
             self.last_yellow_mean = yellow_mean
 
-            # set steering and throttle
-            self.desired_steering = (1.0 - (centre / config.WIDTH))
-            if len(blue_lines) or len(yellow_lines):
+            # calculate the angle difference and direction
+            centre = abs(yellow_mean - blue_mean)
+            if yellow_mean > blue_mean:
+                centre = -centre
+
+            # scale angle difference to steering angle
+            self.desired_steering = ((centre/30.0)+1)/2.0 # 30 being the max expected angle difference...
+
+            # kill throttle if no lines found
+            if blue_angle_count or yellow_angle_count:
                 self.desired_throttle = 0.22
             else:
                 self.desired_throttle = 0
 
             if config.IMSHOW:
-                cv2.circle(self.frame, (int(centre), config.HEIGHT - 20), 10, (0,0,255), -1)
+                # draw white vertical reference line
+                cv2.line(im, (config.WIDTH/2, config.HEIGHT-20), ((config.WIDTH/2), config.HEIGHT-120), (255,255,255), 2)
+                # draw green calculated steering angle
+                cv2.line(im, (config.WIDTH/2, config.HEIGHT-20), ((config.WIDTH/2)+int(100*np.cos(np.deg2rad(centre+90))), int((config.HEIGHT-20)-100*np.sin(np.deg2rad(centre+90)))), (0,255,0), 2)
                 cv2.imshow("colour_mask without noise", colour_mask)
                 cv2.imshow("raw frame", self.frame)
                 cv2.waitKey(1)

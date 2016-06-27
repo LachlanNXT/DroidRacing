@@ -16,19 +16,20 @@ def chromaticity(image):
 def colour_threshold(image, low, high):
     return cv2.inRange(image, np.array(low), np.array(high))
 
-# load image
-raw_im = cv2.imread("test_image_18.jpg")
-# make image smaller
-h, w = raw_im.shape[:2]
-raw_im = cv2.resize(raw_im, (w/2, h/2), interpolation = cv2.INTER_LINEAR)
-h, w = raw_im.shape[:2]
-# extract ROI
-raw_im = raw_im[int(0.4*h):int(0.55*h), int(0.1*w):int(0.9*w)]
-h, w = raw_im.shape[:2]
-
+i=1
 while (1):
+    # load image
+    raw_im = cv2.imread("test_image_%d.jpg" % i)
+    # make image smaller
+    h, w = raw_im.shape[:2]
+    raw_im = cv2.resize(raw_im, (w/2, h/2), interpolation = cv2.INTER_LINEAR)
+    h, w = raw_im.shape[:2]
+    # extract ROI
+    raw_im = raw_im[int(0.4*h):int(0.55*h), int(0.1*w):int(0.9*w)]
+    h, w = raw_im.shape[:2]
+
     im = raw_im.copy()
-    
+
     # colour thresholding
     chroma = chromaticity(im)
     blue_mask = colour_threshold(chroma, config.BLUE_CHROMA_LOW, config.BLUE_CHROMA_HIGH)
@@ -73,12 +74,26 @@ while (1):
     if blue_angle < yellow_angle:
         centre = -centre
 
+    steering = ((centre/30.0)+1)/2
+    if steering > 1:
+        steering = 1.0
+    if steering < 0:
+        steering = 0.0
+
+    print "blue:",blue_angle, "yellow:",yellow_angle,"centre:", centre, "steering:", steering
+
     cv2.line(im, (w/2, h-20), ((w/2), h-120), (255,255,255), 2)
     cv2.line(im, (w/2, h-20), ((w/2)+int(100*np.cos(np.deg2rad(centre+90))), int((h-20)-100*np.sin(np.deg2rad(centre+90)))), (0,255,0), 2)
-    cv2.circle(im, (int(centre), h - 20), 10, (255,0,0), -1)
+    #cv2.circle(im, (int(centre), h - 20), 10, (255,0,0), -1)
     cv2.imshow("im", im)
     cv2.imshow("color_mask without noise", colour_mask)
-    if cv2.waitKey(1) & 0xFF == 27:
+    if cv2.waitKey(2000) & 0xFF == 27:
+        break
+
+    i += 1
+    if i == 22:
+        i = 24
+    if i > 38:
         break
 
 cv2.destroyAllWindows()

@@ -33,14 +33,14 @@ HEIGHT = ROI_YMAX - ROI_YMIN
 
 # Hough Line Transform
 HOUGH_LIN_RES = 1
-HOUGH_ROT_RES = np.pi/180
-HOUGH_VOTES = 40
+HOUGH_ROT_RES = np.pi/45
+HOUGH_VOTES = 80
 HOUGH_MIN_LEN = 50
-HOUGH_MAX_GAP = 10
+HOUGH_MAX_GAP = 50
 
 # line sorting stuff
-MIN_LINE_ANGLE = 20
-MAX_LINE_ANGLE = 90
+MIN_LINE_ANGLE = 15
+MAX_LINE_ANGLE = 80
 
 # morphological stuff
 ERODE_KERNEL = np.ones((2,2), np.uint8)
@@ -51,4 +51,4 @@ DILATE_KERNEL = np.ones((5,5), np.uint8)
 YELLOW_CHROMA_LOW = np.array([0, 90, 90])
 YELLOW_CHROMA_HIGH = np.array([70, 130, 130])
 BLUE_CHROMA_LOW = np.array([90, 0, 0])
-BLUE_CHROMA_HIGH = np.array([130, 100, 100])
+BLUE_CHROMA_HIGH = np.array([150, 100, 100])
