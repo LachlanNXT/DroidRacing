@@ -38,6 +38,7 @@ class DroidVisionThread(threading.Thread):
     def vision_processing(self):
         while self.running:
             self.grab_frame()
+
             # colour mask
             blue_mask = cv2.inRange(self.frame_chroma, config.BLUE_CHROMA_LOW, config.BLUE_CHROMA_HIGH)
             yellow_mask = cv2.inRange(self.frame_chroma, config.YELLOW_CHROMA_LOW, config.YELLOW_CHROMA_HIGH)
@@ -88,7 +89,8 @@ class DroidVisionThread(threading.Thread):
     def grab_frame(self):
         self.fps_counter.update()
         # grab latest frame and index the ROI
-        self.frame = self.camera.read()[config.ROI_YMIN:config.ROI_YMAX, config.ROI_XMIN:config.ROI_XMAX]
+        self.frame = self.camera.read()
+        self.frame = self.frame[config.ROI_YMIN:config.ROI_YMAX, config.ROI_XMIN:config.ROI_XMAX]
         # convert to chromaticity colourspace
         B = self.frame[:, :, 0].astype(np.uint16)
         G = self.frame[:, :, 1].astype(np.uint16)
@@ -97,7 +99,7 @@ class DroidVisionThread(threading.Thread):
         b = (B * Y).astype(np.uint8)
         g = (G * Y).astype(np.uint8)
         r = (R * Y).astype(np.uint8)
-        self.frame_chrome = cv2.merge((b,g,r))
+        self.frame_chroma = cv2.merge((b,g,r))
 
     def get_fps(self):
         self.fps_counter.stop()
