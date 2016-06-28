@@ -9,6 +9,7 @@
 #define THROTTLE_COMMAND 'T'
 #define STEERING_COMMAND 'S'
 #define NUM_READINGS 10
+#define END_SWITCH 4
 
 Servo throttle;
 Servo steering;
@@ -30,6 +31,7 @@ void setup() {
   pinMode(SWITCH_IN, INPUT);
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
+  pinMode(END_SWITCH, INPUT_PULLUP);
   throttle.attach(THROTTLE_OUT);
   steering.attach(STEERING_OUT);
   index = 0;
