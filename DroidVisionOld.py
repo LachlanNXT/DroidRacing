@@ -39,16 +39,15 @@ class DroidVisionThread(threading.Thread):
     def vision_processing(self):
         while self.running:
             self.grab_frame()
+            # colour mask
+            blue_mask = cv2.inRange(self.frame_chroma, config.BLUE_CHROMA_LOW, config.BLUE_CHROMA_HIGH)
+            yellow_mask = cv2.inRange(self.frame_chroma, config.YELLOW_CHROMA_LOW, config.YELLOW_CHROMA_HIGH)
+            colour_mask = cv2.bitwise_or(blue_mask, yellow_mask)
+            colour_mask = cv2.erode(colour_mask, config.ERODE_KERNEL)
+            colour_mask = cv2.dilate(colour_mask, config.DILATE_KERNEL)
 
-            # magic edge detection
-            median = np.median(self.frame_chroma)
-            lower = int(max(0, (1.0 - config.SIGMA) * median))
-            upper = int(min(255, (1.0 + config.SIGMA) * median))
-            edges = cv2.Canny(self.frame_chroma, lower, upper)
-
-            edges = cv2.dilate(edges, config.BIG_KERNEL, iterations=1)
-            edges = cv2.erode(edges, config.BIG_KERNEL, iterations=1)
-            edges = cv2.erode(edges, config.SMALL_KERNEL, iterations=1)
+            # lines
+            lines = cv2.HoughLinesP(colour_mask, config.HOUGH_LIN_RES, config.HOUGH_ROT_RES, config.HOUGH_VOTES, config.HOUGH_MIN_LEN, config.HOUGH_MAX_GAP)
 
             yellow_angle_sum = 0
             yellow_angle_count = 0
@@ -81,8 +80,21 @@ class DroidVisionThread(threading.Thread):
             # calculate the average angle
             self.mean_angle = -(yellow_mean + blue_mean) / 2.0
 
+            # scale angle difference to steering angle
+            self.desired_steering = ((self.mean_angle/30.0)+1)/2.0 # 30 being the max expected angle difference...
+
+            # kill throttle if no lines found
+            if blue_angle_count or yellow_angle_count:
+                self.desired_throttle = 0.22
+            else:
+                self.desired_throttle = 0
+
             if config.IMSHOW:
-                cv2.imshow("edges", edges)
+                # draw white vertical reference line
+                cv2.line(self.frame, (config.WIDTH//2, config.HEIGHT-20), ((config.WIDTH//2), config.HEIGHT-120), (255,255,255), 2)
+                # draw green calculated steering angle
+                cv2.line(self.frame, (config.WIDTH//2, config.HEIGHT-20), ((config.WIDTH//2)+int(100*np.cos(np.deg2rad(self.mean_angle+90))), int((config.HEIGHT-20)-100*np.sin(np.deg2rad(self.mean_angle+90)))), (0,255,0), 2)
+                cv2.imshow("colour_mask without noise", colour_mask)
                 cv2.imshow("raw frame", self.frame)
                 cv2.waitKey(1)
 
@@ -98,12 +110,10 @@ class DroidVisionThread(threading.Thread):
         G = self.frame[:, :, 1].astype(np.uint16)
         R = self.frame[:, :, 2].astype(np.uint16)
         Y = 255.0 / (B + G + R)
-        b = (B * Y).astype(np.uint16)
-        g = (G * Y).astype(np.uint16)
-        r = (R * Y).astype(np.uint16)
+        b = (B * Y).astype(np.uint8)
+        g = (G * Y).astype(np.uint8)
+        r = (R * Y).astype(np.uint8)
         self.frame_chroma = cv2.merge((b,g,r))
-        self.frame_chroma = np.power(self.frame_chroma, 2)
-        self.frame_chroma = (self.frame_chroma // 255).astype(np.uint8)
 
     def get_fps(self):
         self.fps_counter.stop()

@@ -31,6 +31,11 @@ ROI_XMAX = int(0.85 * RAW_FRAME_WIDTH)
 WIDTH = int(ROI_XMAX - ROI_XMIN)
 HEIGHT = int(ROI_YMAX - ROI_YMIN)
 
+# Edge Detection
+SIGMA = 0.3
+BIG_KERNEL = np.ones((12,12), np.uint8)
+SMALL_KERNEL = np.ones((4,4), np.uint8)
+
 # Hough Line Transform
 HOUGH_LIN_RES = 1
 HOUGH_ROT_RES = np.pi/45
