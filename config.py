@@ -4,7 +4,7 @@ import numpy as np
 # global config
 DEBUG = True
 DEBUG_MODE = "PRINT" # use either PRINT or FILE
-IMSHOW = True
+IMSHOW = False
 
 # used by Main
 MIN_THROTTLE = 1500
@@ -28,8 +28,8 @@ ROI_YMIN = int(0.5 * RAW_FRAME_HEIGHT)
 ROI_YMAX = int(0.9 * RAW_FRAME_HEIGHT)
 ROI_XMIN = int(0.15 * RAW_FRAME_WIDTH)
 ROI_XMAX = int(0.85 * RAW_FRAME_WIDTH)
-WIDTH = ROI_XMAX - ROI_XMIN
-HEIGHT = ROI_YMAX - ROI_YMIN
+WIDTH = int(ROI_XMAX - ROI_XMIN)
+HEIGHT = int(ROI_YMAX - ROI_YMIN)
 
 # Hough Line Transform
 HOUGH_LIN_RES = 1
@@ -52,8 +52,8 @@ YELLOW_CHROMA_LOW = np.array([0, 90, 90])
 YELLOW_CHROMA_HIGH = np.array([70, 130, 130])
 BLUE_CHROMA_LOW = np.array([90, 0, 0])
 BLUE_CHROMA_HIGH = np.array([150, 100, 100])
-PURPLE_CHROMA_LOW = np.array([  ])
-PURPLE_CHROMA_HIGH = np.array([   ]})
+PURPLE_CHROMA_LOW = np.array([0,0,0])
+PURPLE_CHROMA_HIGH = np.array([0,0,0])
 
 # PID Loop
 Kp = 1;

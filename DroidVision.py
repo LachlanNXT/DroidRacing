@@ -92,9 +92,9 @@ class DroidVisionThread(threading.Thread):
 
             if config.IMSHOW:
                 # draw white vertical reference line
-                cv2.line(im, (config.WIDTH/2, config.HEIGHT-20), ((config.WIDTH/2), config.HEIGHT-120), (255,255,255), 2)
+                cv2.line(self.frame, (config.WIDTH//2, config.HEIGHT-20), ((config.WIDTH//2), config.HEIGHT-120), (255,255,255), 2)
                 # draw green calculated steering angle
-                cv2.line(im, (config.WIDTH/2, config.HEIGHT-20), ((config.WIDTH/2)+int(100*np.cos(np.deg2rad(centre+90))), int((config.HEIGHT-20)-100*np.sin(np.deg2rad(centre+90)))), (0,255,0), 2)
+                cv2.line(self.frame, (config.WIDTH//2, config.HEIGHT-20), ((config.WIDTH//2)+int(100*np.cos(np.deg2rad(centre+90))), int((config.HEIGHT-20)-100*np.sin(np.deg2rad(centre+90)))), (0,255,0), 2)
                 cv2.imshow("colour_mask without noise", colour_mask)
                 cv2.imshow("raw frame", self.frame)
                 cv2.waitKey(1)
@@ -111,7 +111,7 @@ class DroidVisionThread(threading.Thread):
         b = (B * Y).astype(np.uint8)
         g = (G * Y).astype(np.uint8)
         r = (R * Y).astype(np.uint8)
-        self.frame_chrome = cv2.merge((b,g,r))
+        self.frame_chroma = cv2.merge((b,g,r))
 
     def get_fps(self):
         self.fps_counter.stop()
