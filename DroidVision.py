@@ -109,7 +109,7 @@ class DroidVisionThread(threading.Thread):
         # convert to chromaticity colourspace
         B = self.frame[:, :, 0].astype(np.uint16)
         G = self.frame[:, :, 1].astype(np.uint16)
-        R = self.frame[:, :, 2].astype(np.uint16)    
+        R = self.frame[:, :, 2].astype(np.uint16)
         Y = 255.0 / (B + G + R)
         b = (B * Y).astype(np.uint8)
         g = (G * Y).astype(np.uint8)
