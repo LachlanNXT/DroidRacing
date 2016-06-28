@@ -58,9 +58,8 @@ while True:
                 Pid = 1
             if Pid<-1:
                 Pid = -1
-            throttle = 0;
+            throttle = 0.225;
             set_steering_throttle(Pid, throttle)
-            print(diffError, sumError, last_error, Pid)
             time.sleep(config.QUEUE_SLEEP_TIME * 10)
 
     except KeyboardInterrupt:

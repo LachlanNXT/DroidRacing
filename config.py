@@ -56,6 +56,6 @@ PURPLE_CHROMA_LOW = np.array([0,0,0])
 PURPLE_CHROMA_HIGH = np.array([0,0,0])
 
 # PID Loop
-Kp = 0.02
+Kp = 0.015
 Ki = 0.0
-Kd = 0.005
+Kd = 0.003

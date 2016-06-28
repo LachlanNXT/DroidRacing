@@ -60,14 +60,12 @@ class DroidVisionThread(threading.Thread):
                     if config.MIN_LINE_ANGLE < abs(angle) < config.MAX_LINE_ANGLE:
                         if config.IMSHOW:
                             cv2.line(self.frame, (x1,y1), (x2,y2), (0,0,255), 1)
-                        yellow_angle_sum += angle
-                        yellow_angle_count += 1
-                        # if angle > 0:
-                        #     yellow_angle_sum += angle
-                        #     yellow_angle_count += 1
-                        # elif angle < 0:
-                        #     blue_angle_sum += angle
-                        #     blue_angle_count += 1
+                        if angle > 0:
+                            yellow_angle_sum += angle
+                            yellow_angle_count += 1
+                        elif angle < 0:
+                            blue_angle_sum += angle
+                            blue_angle_count += 1
 
             # find mean line angles from lines
             blue_mean = self.last_blue_mean
@@ -80,8 +78,7 @@ class DroidVisionThread(threading.Thread):
             self.last_yellow_mean = yellow_mean
 
             # calculate the average angle
-            #self.mean_angle = -(yellow_mean + blue_mean) / 2.0
-            self.mean_angle = yellow_mean
+            self.mean_angle = -(yellow_mean + blue_mean) / 2.0
 
             # scale angle difference to steering angle
             self.desired_steering = ((self.mean_angle/30.0)+1)/2.0 # 30 being the max expected angle difference...
