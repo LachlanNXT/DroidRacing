@@ -40,8 +40,8 @@ vision.start()
 last_steering = config.NEUTRAL_STEERING
 last_throttle = config.NEUTRAL_THROTTLE
 
-last_error = 0
-sumError = 0
+last_error = 0.0
+sumError = 0.0
 
 while True:
     try:
@@ -59,7 +59,8 @@ while True:
                 Pid = 0
             throttle = 0;
             set_steering_throttle(Pid, throttle)
-            time.sleep(config.QUEUE_SLEEP_TIME * 2)
+            print(diffError, sumError, last_error, Pid)
+            time.sleep(config.QUEUE_SLEEP_TIME * 10)
 
     except KeyboardInterrupt:
         debug("Main: KeyboardInterrupt - stopping")
