@@ -4,7 +4,7 @@ import numpy as np
 # global config
 DEBUG = True
 DEBUG_MODE = "PRINT" # use either PRINT or FILE
-IMSHOW = False
+IMSHOW = True
 
 # used by Main
 MIN_THROTTLE = 1500
@@ -34,9 +34,9 @@ HEIGHT = int(ROI_YMAX - ROI_YMIN)
 # Hough Line Transform
 HOUGH_LIN_RES = 1
 HOUGH_ROT_RES = np.pi/45
-HOUGH_VOTES = 80
+HOUGH_VOTES = 60
 HOUGH_MIN_LEN = 50
-HOUGH_MAX_GAP = 50
+HOUGH_MAX_GAP = 40
 
 # line sorting stuff
 MIN_LINE_ANGLE = 15
