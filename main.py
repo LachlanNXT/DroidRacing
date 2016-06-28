@@ -40,16 +40,32 @@ vision.start()
 last_steering = config.NEUTRAL_STEERING
 last_throttle = config.NEUTRAL_THROTTLE
 
+last_error = 0
+sumError = 0
+
 while True:
+    while True:
     try:
         # only add new steering and throttle commands to queue if
         # they have been updated by vision thread
-        steering, throttle = vision.get_steering_throttle()
-        if steering != last_steering or throttle != last_throttle:
-            set_steering_throttle(steering, throttle)
-            last_steering = steering
-            last_throttle = throttle
-        time.sleep(config.QUEUE_SLEEP_TIME * 2)
+        newError = vision.get_error()
+        if newError != last_error:
+	    diffError = newError - last_error
+            sumError = sumError + newError
+	    last_error = newError
+	    Pid = config.Kp*last_error + config.Ki*sumError + config.Kd*diffError
+
+            if Pid>1:
+                Pid = 1
+            if Pid<0:
+                Pid = 0
+
+            throttle = 0;
+
+	    set_steering_throttle(Pid, throttle)
+	    
+            time.sleep(config.QUEUE_SLEEP_TIME * 2)
+
     except KeyboardInterrupt:
         debug("Main: KeyboardInterrupt - stopping")
         break
