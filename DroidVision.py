@@ -19,6 +19,8 @@ class DroidVisionThread(threading.Thread):
         time.sleep(config.CAMERA_WARMUP_TIME) # wait for camera to initialise
         self.frame = None
         self.frame_chroma = None
+        self.centre = config.CENTRE
+        self.can_see_lines = False
         self.last_yellow_mean = config.WIDTH * 0.8
         self.last_blue_mean = config.WIDTH * 0.2
         self.desired_steering = config.NEUTRAL_STEERING # 0 = left, 0.5 = center, 1 = right
@@ -45,7 +47,7 @@ class DroidVisionThread(threading.Thread):
             colour_mask = cv2.bitwise_or(blue_mask, yellow_mask)
             colour_mask = cv2.erode(colour_mask, config.ERODE_KERNEL)
             colour_mask = cv2.dilate(colour_mask, config.DILATE_KERNEL)
-
+            
             # lines
             lines = cv2.HoughLinesP(colour_mask, config.HOUGH_LIN_RES, config.HOUGH_ROT_RES, config.HOUGH_VOTES, config.HOUGH_MIN_LEN, config.HOUGH_MAX_GAP)
             blue_lines = np.array([])
@@ -69,19 +71,21 @@ class DroidVisionThread(threading.Thread):
                 blue_mean = int(np.mean(blue_lines))
             if len(yellow_lines):
                 yellow_mean = int(np.mean(yellow_lines))
-            centre = (blue_mean + yellow_mean) / 2.0
+            self.centre = (blue_mean + yellow_mean) / 2.0
             self.last_blue_mean = blue_mean
             self.last_yellow_mean = yellow_mean
 
+            self.can_see_lines = (len(blue_lines) or len(yellow_lines))
+
             # set steering and throttle
-            self.desired_steering = (1.0 - (centre / config.WIDTH))
+            self.desired_steering = (1.0 - (self.centre / config.WIDTH))
             if len(blue_lines) or len(yellow_lines):
                 self.desired_throttle = 0.22
             else:
                 self.desired_throttle = 0
 
             if config.IMSHOW:
-                cv2.circle(self.frame, (int(centre), config.HEIGHT - 20), 10, (0,0,255), -1)
+                cv2.circle(self.frame, (int(self.centre), config.HEIGHT - 20), 10, (0,0,255), -1)
                 cv2.imshow("colour_mask without noise", colour_mask)
                 cv2.imshow("raw frame", self.frame)
                 cv2.waitKey(1)
@@ -104,6 +108,9 @@ class DroidVisionThread(threading.Thread):
     def get_fps(self):
         self.fps_counter.stop()
         return self.fps_counter.fps()
+
+    def get_error(self):
+        return (config.CENTRE - self.centre)
 
     def get_steering_throttle(self):
         return self.desired_steering, self.desired_throttle

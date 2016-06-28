@@ -4,7 +4,7 @@ import numpy as np
 # global config
 DEBUG = True
 DEBUG_MODE = "PRINT" # use either PRINT or FILE
-IMSHOW = False
+IMSHOW = True
 
 # used by Main
 MIN_THROTTLE = 1500
@@ -30,16 +30,17 @@ ROI_XMIN = int(0.15 * RAW_FRAME_WIDTH)
 ROI_XMAX = int(0.85 * RAW_FRAME_WIDTH)
 WIDTH = ROI_XMAX - ROI_XMIN
 HEIGHT = ROI_YMAX - ROI_YMIN
+CENTRE = WIDTH//2
 
 # Hough Line Transform
 HOUGH_LIN_RES = 1
-HOUGH_ROT_RES = np.pi/180
-HOUGH_VOTES = 40
+HOUGH_ROT_RES = np.pi/45
+HOUGH_VOTES = 60
 HOUGH_MIN_LEN = 50
-HOUGH_MAX_GAP = 10
+HOUGH_MAX_GAP = 40
 
 # line sorting stuff
-MIN_LINE_ANGLE = 20
+MIN_LINE_ANGLE = 10
 MAX_LINE_ANGLE = 90
 
 # morphological stuff
