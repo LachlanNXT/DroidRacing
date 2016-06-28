@@ -33,7 +33,7 @@ HEIGHT = int(ROI_YMAX - ROI_YMIN)
 
 # Hough Line Transform
 HOUGH_LIN_RES = 1
-HOUGH_ROT_RES = np.pi/90
+HOUGH_ROT_RES = np.pi/45
 HOUGH_VOTES = 60
 HOUGH_MIN_LEN = 50
 HOUGH_MAX_GAP = 40
@@ -52,10 +52,10 @@ YELLOW_CHROMA_LOW = np.array([0, 90, 90])
 YELLOW_CHROMA_HIGH = np.array([70, 130, 130])
 BLUE_CHROMA_LOW = np.array([90, 0, 0])
 BLUE_CHROMA_HIGH = np.array([150, 100, 100])
-PURPLE_CHROMA_LOW = np.array([0, 0, 0])
-PURPLE_CHROMA_HIGH = np.array([0, 0, 0])
+PURPLE_CHROMA_LOW = np.array([0,0,0])
+PURPLE_CHROMA_HIGH = np.array([0,0,0])
 
 # PID Loop
-Kp = 1
-Ki = 0
-Kd = 1
+Kp = 0.02;
+Ki = 0.0;
+Kd = 0.005;

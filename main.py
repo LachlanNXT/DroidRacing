@@ -11,6 +11,7 @@ import random
 import subprocess
 
 def set_steering_throttle(steering, throttle):
+    steering = (steering + 1) / 2.0
     # convert steering and throttle from 0-1 range to pulse width
     throttle = int((throttle * (config.MAX_THROTTLE - config.MIN_THROTTLE)) + config.MIN_THROTTLE)
     steering = int((steering * (config.MAX_STEERING - config.MIN_STEERING)) + config.MIN_STEERING)
@@ -40,8 +41,8 @@ vision.start()
 last_steering = config.NEUTRAL_STEERING
 last_throttle = config.NEUTRAL_THROTTLE
 
-last_error = 0
-sumError = 0
+last_error = 0.0
+sumError = 0.0
 
 while True:
     try:
@@ -55,11 +56,12 @@ while True:
             Pid = config.Kp*last_error + config.Ki*sumError + config.Kd*diffError
             if Pid>1:
                 Pid = 1
-            if Pid<0:
-                Pid = 0
+            if Pid<-1:
+                Pid = -1
             throttle = 0;
             set_steering_throttle(Pid, throttle)
-            time.sleep(config.QUEUE_SLEEP_TIME * 2)
+            print(diffError, sumError, last_error, Pid)
+            time.sleep(config.QUEUE_SLEEP_TIME * 10)
 
     except KeyboardInterrupt:
         debug("Main: KeyboardInterrupt - stopping")
