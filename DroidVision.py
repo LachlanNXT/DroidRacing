@@ -43,15 +43,15 @@ class DroidVisionThread(threading.Thread):
             self.grab_frame()
 
             # magic edge detection
-            median = np.median(self.frame_chroma)
-            lower = int(max(0, (1.0 - config.SIGMA) * median))
-            upper = int(min(255, (1.0 + config.SIGMA) * median))
-            edges = cv2.Canny(self.frame_chroma, lower, upper)
+            #median = np.median(self.frame_chroma)
+            #lower = int(max(0, (1.0 - config.SIGMA) * median))
+            #upper = int(min(255, (1.0 + config.SIGMA) * median))
+            #edges = cv2.Canny(self.frame_chroma, lower, upper)
             #cv2.imshow("edges", edges)
 
-            edges = cv2.dilate(edges, config.BIG_KERNEL, iterations=1)
-            edges = cv2.erode(edges, config.BIG_KERNEL, iterations=1)
-            edges = cv2.erode(edges, config.SMALL_KERNEL, iterations=1)
+            #edges = cv2.dilate(edges, config.BIG_KERNEL, iterations=1)
+            #edges = cv2.erode(edges, config.BIG_KERNEL, iterations=1)
+            #edges = cv2.erode(edges, config.SMALL_KERNEL, iterations=1)
 
             #yellow_angle_sum = 0
             #yellow_angle_count = 0
@@ -96,9 +96,8 @@ class DroidVisionThread(threading.Thread):
         self.fps_counter.update()
         # grab latest frame and index the ROI
         self.frame = self.camera.read()[config.ROI_YMIN:config.ROI_YMAX, config.ROI_XMIN:config.ROI_XMAX]
-        self.frame_chroma = self.frame
         # convert to chromaticity colourspace
-        chromaticity(ctypes.c_void_p(self.frame), ctypes.c_int(config.NUM_ELEM))
+        self.chromaticity(ctypes.c_void_p(self.frame.ctypes.data), ctypes.c_int(config.NUM_ELEM))
 
     def get_fps(self):
         self.fps_counter.stop()
@@ -106,3 +105,10 @@ class DroidVisionThread(threading.Thread):
 
     def get_steering_throttle(self):
         return self.desired_steering, self.desired_throttle
+
+if __name__ == "__main__":
+    v = DroidVisionThread()
+    v.start()
+    time.sleep(5)
+    v.stop()
+    print(v.get_fps())
