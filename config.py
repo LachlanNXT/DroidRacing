@@ -4,7 +4,7 @@ import numpy as np
 # global config
 DEBUG = True
 DEBUG_MODE = "PRINT" # use either PRINT or FILE
-IMSHOW = True
+IMSHOW = False
 
 # used by Main
 MIN_THROTTLE = 1500

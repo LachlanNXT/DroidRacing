@@ -41,50 +41,51 @@ class DroidVisionThread(threading.Thread):
             self.grab_frame()
 
             # magic edge detection
-            median = np.median(self.frame_chroma)
-            lower = int(max(0, (1.0 - config.SIGMA) * median))
-            upper = int(min(255, (1.0 + config.SIGMA) * median))
-            edges = cv2.Canny(self.frame_chroma, lower, upper)
+            #median = np.median(self.frame_chroma)
+            #lower = int(max(0, (1.0 - config.SIGMA) * median))
+            #upper = int(min(255, (1.0 + config.SIGMA) * median))
+            #edges = cv2.Canny(self.frame_chroma, lower, upper)
+            #cv2.imshow("edges", edges)
 
-            edges = cv2.dilate(edges, config.BIG_KERNEL, iterations=1)
-            edges = cv2.erode(edges, config.BIG_KERNEL, iterations=1)
-            edges = cv2.erode(edges, config.SMALL_KERNEL, iterations=1)
+            #edges = cv2.dilate(edges, config.BIG_KERNEL, iterations=1)
+            #edges = cv2.erode(edges, config.BIG_KERNEL, iterations=1)
+            #edges = cv2.erode(edges, config.SMALL_KERNEL, iterations=1)
 
-            yellow_angle_sum = 0
-            yellow_angle_count = 0
-            blue_angle_sum = 0
-            blue_angle_count = 0
-            if lines != None:
-                for line in lines:
-                    x1,y1,x2,y2 = line[0]
-                    angle = np.rad2deg(np.arctan2(y2-y1, x2-x1))
-                    if config.MIN_LINE_ANGLE < abs(angle) < config.MAX_LINE_ANGLE:
-                        if config.IMSHOW:
-                            cv2.line(self.frame, (x1,y1), (x2,y2), (0,0,255), 1)
-                        if angle > 0:
-                            yellow_angle_sum += angle
-                            yellow_angle_count += 1
-                        elif angle < 0:
-                            blue_angle_sum += angle
-                            blue_angle_count += 1
+            #yellow_angle_sum = 0
+            #yellow_angle_count = 0
+            #blue_angle_sum = 0
+            #blue_angle_count = 0
+            #if lines != None:
+            #    for line in lines:
+            #        x1,y1,x2,y2 = line[0]
+            #        angle = np.rad2deg(np.arctan2(y2-y1, x2-x1))
+            #        if config.MIN_LINE_ANGLE < abs(angle) < config.MAX_LINE_ANGLE:
+            #            if config.IMSHOW:
+            #                cv2.line(self.frame, (x1,y1), (x2,y2), (0,0,255), 1)
+            #            if angle > 0:
+            #                yellow_angle_sum += angle
+            #                yellow_angle_count += 1
+            #            elif angle < 0:
+            #                blue_angle_sum += angle
+            #                blue_angle_count += 1
 
             # find mean line angles from lines
-            blue_mean = self.last_blue_mean
-            yellow_mean = self.last_yellow_mean
-            if blue_angle_count:
-                blue_mean = blue_angle_sum / blue_angle_count
-            if yellow_angle_count:
-                yellow_mean = yellow_angle_sum / yellow_angle_count
-            self.last_blue_mean = blue_mean
-            self.last_yellow_mean = yellow_mean
+            #blue_mean = self.last_blue_mean
+            #yellow_mean = self.last_yellow_mean
+            #if blue_angle_count:
+            #    blue_mean = blue_angle_sum / blue_angle_count
+            #if yellow_angle_count:
+            #    yellow_mean = yellow_angle_sum / yellow_angle_count
+            #self.last_blue_mean = blue_mean
+            #self.last_yellow_mean = yellow_mean
 
             # calculate the average angle
-            self.mean_angle = -(yellow_mean + blue_mean) / 2.0
+            #self.mean_angle = -(yellow_mean + blue_mean) / 2.0
 
-            if config.IMSHOW:
-                cv2.imshow("edges", edges)
-                cv2.imshow("raw frame", self.frame)
-                cv2.waitKey(1)
+            #if config.IMSHOW:
+            #    cv2.imshow("filtered edges", edges)
+            #    cv2.imshow("raw frame", self.frame)
+            #    cv2.waitKey(1)
 
     def get_error(self):
         return self.mean_angle
@@ -97,13 +98,13 @@ class DroidVisionThread(threading.Thread):
         B = self.frame[:, :, 0].astype(np.uint16)
         G = self.frame[:, :, 1].astype(np.uint16)
         R = self.frame[:, :, 2].astype(np.uint16)
-        Y = 255.0 / (B + G + R)
-        b = (B * Y).astype(np.uint16)
-        g = (G * Y).astype(np.uint16)
-        r = (R * Y).astype(np.uint16)
-        self.frame_chroma = cv2.merge((b,g,r))
-        self.frame_chroma = np.power(self.frame_chroma, 2)
-        self.frame_chroma = (self.frame_chroma // 255).astype(np.uint8)
+        Y = 255 / (B + G + R)
+        #b = (B * Y).astype(np.uint16)
+        #g = (G * Y).astype(np.uint16)
+        #r = (R * Y).astype(np.uint16)
+        #self.frame_chroma = cv2.merge((b,g,r))
+        #self.frame_chroma = np.power(self.frame_chroma, 2)
+        #self.frame_chroma = (self.frame_chroma // 255).astype(np.uint8)
 
     def get_fps(self):
         self.fps_counter.stop()
